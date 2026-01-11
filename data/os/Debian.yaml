@@ -1,0 +1,5 @@
+---
+# Debian/Ubuntu family specific parameters
+
+# Network interface typically named differently on Debian
+ha_adguard::vrrp_interface: 'ens3'

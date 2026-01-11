@@ -1,0 +1,16 @@
+*.swp
+*~
+.DS_Store
+.bundle/
+.vagrant/
+.tmp/
+Gemfile.lock
+coverage/
+log/
+pkg/
+spec/fixtures/
+vendor/
+*.lock
+.idea/
+.vscode/
+junit/

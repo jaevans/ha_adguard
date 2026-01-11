@@ -1,0 +1,31 @@
+[Unit]
+Description=AdGuard Home Sync Service
+Documentation=https://github.com/bakito/adguardhome-sync
+After=network-online.target adguardhome.service
+Wants=network-online.target
+Requires=adguardhome.service
+
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStart=/usr/local/bin/adguardhome-sync run --config /etc/adguardhome-sync/config.yaml
+Restart=always
+RestartSec=10
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/etc/adguardhome-sync
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+LockPersonality=true
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target

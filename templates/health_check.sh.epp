@@ -1,0 +1,48 @@
+<%- | Stdlib::Port $dns_port | -%>
+#!/bin/bash
+#
+# AdGuard Home Health Check Script for Keepalived
+#
+# This script performs comprehensive health checks:
+# 1. Verify AdGuardHome process is running
+# 2. Check port <%= $dns_port %> is listening
+# 3. Perform test DNS query
+#
+# Exit codes:
+#   0 = healthy
+#   1 = unhealthy
+
+set -euo pipefail
+
+TIMEOUT=5
+DNS_PORT=<%= $dns_port %>
+
+# Check if AdGuardHome process is running
+if ! pgrep -x "AdGuardHome" > /dev/null; then
+    echo "ERROR: AdGuardHome process not running"
+    exit 1
+fi
+
+# Check if DNS port is listening
+if ! ss -lun | grep -q ":${DNS_PORT}"; then
+    echo "ERROR: Port ${DNS_PORT} not listening"
+    exit 1
+fi
+
+# Perform test DNS query
+if command -v dig &> /dev/null; then
+    if ! timeout ${TIMEOUT} dig @127.0.0.1 -p ${DNS_PORT} +short google.com > /dev/null 2>&1; then
+        echo "ERROR: DNS query failed"
+        exit 1
+    fi
+elif command -v nslookup &> /dev/null; then
+    if ! timeout ${TIMEOUT} nslookup google.com 127.0.0.1:${DNS_PORT} > /dev/null 2>&1; then
+        echo "ERROR: DNS query failed"
+        exit 1
+    fi
+else
+    echo "WARNING: Neither dig nor nslookup available, skipping DNS query test"
+fi
+
+# All checks passed
+exit 0

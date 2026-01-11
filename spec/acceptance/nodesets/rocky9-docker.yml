@@ -1,0 +1,25 @@
+---
+# Rocky Linux 9 single-node nodeset for Beaker acceptance tests
+# Uses Docker containers for fast, isolated testing
+
+HOSTS:
+  rocky9:
+    platform: el-9-x86_64
+    hypervisor: docker
+    image: rockylinux:9
+    docker_preserve_image: true
+    docker_cmd: '["/usr/sbin/init"]'
+    docker_image_commands:
+      - 'dnf install -y systemd wget which procps iproute bind-utils iputils net-tools'
+      - 'wget https://yum.voxpupuli.org/openvox8-release-el-9.noarch.rpm'
+      - 'rpm -ivh openvox8-release-el-9.noarch.rpm'
+      - 'dnf install -y openvox-agent'
+      - 'ln -sf /opt/puppetlabs/bin/puppet /usr/bin/puppet'
+    roles:
+      - agent
+      - default
+
+CONFIG:
+  log_level: verbose
+  type: aio
+  puppet_collection: <%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'openvox8') %>

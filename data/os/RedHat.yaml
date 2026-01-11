@@ -1,0 +1,8 @@
+---
+# RedHat/CentOS/Rocky/AlmaLinux family specific parameters
+
+# Network interface typically named differently on RHEL
+ha_adguard::vrrp_interface: 'ens192'
+
+# RHEL typically uses firewalld
+ha_adguard::firewall_provider: 'firewalld'

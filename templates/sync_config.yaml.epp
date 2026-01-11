@@ -1,0 +1,45 @@
+<%- | Stdlib::HTTPUrl $origin_url,
+      String[1] $username,
+      Sensitive[String[1]] $password,
+      String[1] $replica_url,
+      Integer[1] $interval,
+      Boolean $run_on_start,
+      Boolean $api_enabled,
+      Stdlib::Port $api_port,
+      Array[String[1]] $sync_features,
+| -%>
+# adguardhome-sync configuration
+# See: https://github.com/bakito/adguardhome-sync
+
+# Origin instance (primary)
+origin:
+  url: <%= $origin_url %>
+  username: <%= $username %>
+  password: <%= $password.unwrap %>
+  insecureSkipVerify: false
+
+# Replica instances (this node)
+replicas:
+  - url: <%= $replica_url %>
+    username: <%= $username %>
+    password: <%= $password.unwrap %>
+    insecureSkipVerify: false
+
+# Synchronization features
+features:
+<%- $sync_features.each |$feature| { -%>
+  <%= $feature %>: true
+<%- } -%>
+
+# Sync interval in seconds
+cron: "*/<%= $interval / 60 %> * * * *"
+
+# Run sync on startup
+runOnStart: <%= $run_on_start %>
+
+# API settings
+api:
+  enabled: <%= $api_enabled %>
+  port: <%= $api_port %>
+  username: <%= $username %>
+  password: <%= $password.unwrap %>

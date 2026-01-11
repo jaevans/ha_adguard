@@ -1,0 +1,9 @@
+---
+# Default Beaker configuration for ha_adguard module
+# This file is used when no BEAKER_set environment variable is specified
+
+# Use Debian 12 as the default test platform (fastest for development)
+default: debian12-docker
+
+# Search path for nodesets
+nodeset_path: 'spec/acceptance/nodesets'

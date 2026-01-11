@@ -1,0 +1,62 @@
+---
+# Common default parameters for ha_adguard module
+
+ha_adguard::ensure: 'present'
+ha_adguard::adguard_version: '0.107.52'
+ha_adguard::adguard_download_url: 'https://github.com/AdguardTeam/AdGuardHome/releases/download'
+ha_adguard::install_dir: '/opt/AdGuardHome'
+ha_adguard::config_dir: '/etc/adguardhome'
+ha_adguard::work_dir: '/var/lib/adguardhome'
+
+ha_adguard::user: 'adguard'
+ha_adguard::group: 'adguard'
+
+ha_adguard::bind_host: '0.0.0.0'
+ha_adguard::bind_port: 3000
+ha_adguard::dns_port: 53
+
+ha_adguard::upstream_dns:
+  - '1.1.1.1'
+  - '1.0.0.1'
+  - '8.8.8.8'
+  - '8.8.4.4'
+
+ha_adguard::enable_dnssec: true
+ha_adguard::enable_filtering: true
+
+ha_adguard::ha_enabled: false
+ha_adguard::ha_role: 'primary'
+ha_adguard::cluster_nodes: []
+
+ha_adguard::keepalived_enabled: false
+ha_adguard::vrrp_priority: 100
+ha_adguard::vrrp_router_id: 51
+ha_adguard::vrrp_auth_pass: 'changeme'
+ha_adguard::vrrp_interface: 'eth0'
+ha_adguard::health_check_interval: 2
+ha_adguard::health_check_timeout: 5
+
+ha_adguard::sync_enabled: false
+ha_adguard::sync_version: '0.6.15'
+ha_adguard::sync_username: 'admin'
+ha_adguard::sync_password: 'changeme'
+ha_adguard::sync_interval: 600
+ha_adguard::sync_run_on_start: true
+ha_adguard::sync_api_enabled: true
+ha_adguard::sync_api_port: 8080
+ha_adguard::sync_features:
+  - 'general_settings'
+  - 'query_log_config'
+  - 'stats_config'
+  - 'client_settings'
+  - 'services'
+  - 'filters'
+  - 'dhcp_server_config'
+  - 'dns_config'
+
+ha_adguard::manage_firewall: false
+ha_adguard::firewall_provider: 'firewalld'
+
+ha_adguard::manage_service: true
+ha_adguard::service_ensure: 'running'
+ha_adguard::service_enable: true

@@ -1,0 +1,41 @@
+<%- | String[1] $install_dir,
+      String[1] $config_dir,
+      String[1] $work_dir,
+      String[1] $user,
+      String[1] $group,
+| -%>
+[Unit]
+Description=AdGuard Home DNS server
+Documentation=https://github.com/AdguardTeam/AdGuardHome/wiki
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=<%= $user %>
+Group=<%= $group %>
+WorkingDirectory=<%= $work_dir %>
+ExecStart=<%= $install_dir %>/AdGuardHome --config <%= $config_dir %>/AdGuardHome.yaml --work-dir <%= $work_dir %> --no-check-update
+Restart=always
+RestartSec=10
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=<%= $work_dir %> <%= $config_dir %>
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+LockPersonality=true
+SystemCallArchitectures=native
+
+# Allow binding to privileged ports
+AmbientCapabilities=CAP_NET_BIND_SERVICE CAP_NET_RAW
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE CAP_NET_RAW
+
+[Install]
+WantedBy=multi-user.target

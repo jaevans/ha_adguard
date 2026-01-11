@@ -1,0 +1,14 @@
+# Default facts for all spec tests
+---
+os:
+  family: 'Debian'
+  name: 'Debian'
+  release:
+    major: '12'
+    full: '12.0'
+  architecture: 'x86_64'
+kernel: 'Linux'
+networking:
+  fqdn: 'test.example.com'
+  hostname: 'test'
+  domain: 'example.com'

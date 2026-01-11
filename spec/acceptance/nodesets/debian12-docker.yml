@@ -1,0 +1,25 @@
+---
+# Debian 12 (Bookworm) single-node nodeset for Beaker acceptance tests
+# Uses Docker containers for fast, isolated testing
+
+HOSTS:
+  debian12:
+    platform: debian-12-amd64
+    hypervisor: docker
+    image: debian:12
+    docker_preserve_image: true
+    docker_cmd: '["/sbin/init"]'
+    docker_image_commands:
+      - 'apt-get update && apt-get install -y systemd systemd-sysv wget gnupg lsb-release ca-certificates iproute2 procps dnsutils iputils-ping curl net-tools'
+      - 'wget https://apt.voxpupuli.org/openvox8-release-debian12.deb'
+      - 'dpkg -i openvox8-release-debian12.deb'
+      - 'apt-get update && apt-get install -y openvox-agent'
+      - 'ln -sf /opt/puppetlabs/bin/puppet /usr/bin/puppet'
+    roles:
+      - agent
+      - default
+
+CONFIG:
+  log_level: verbose
+  type: aio
+  puppet_collection: <%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'openvox8') %>
