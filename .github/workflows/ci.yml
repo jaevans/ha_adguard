@@ -158,9 +158,10 @@ jobs:
     permissions:
       contents: read
     if: |
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request' && needs.check-approval.outputs.approved == 'true')
-    needs: [check-permissions, check-approval, static-analysis]
+      always() &&
+      (github.event_name == 'push' ||
+       (github.event_name == 'pull_request' && needs.check-approval.outputs.approved == 'true'))
+    needs: [check-permissions, check-approval, static-analysis-push, static-analysis-pr]
     strategy:
       matrix:
         puppet: ['8']
@@ -183,8 +184,10 @@ jobs:
     permissions:
       contents: read
     if: |
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request' && needs.check-approval.outputs.approved == 'true')
+      always() &&
+      (github.event_name == 'push' ||
+       (github.event_name == 'pull_request' && needs.check-approval.outputs.approved == 'true')) &&
+      needs.unit-tests.result == 'success'
     needs: [check-approval, unit-tests]
     strategy:
       fail-fast: false
