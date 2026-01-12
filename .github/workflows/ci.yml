@@ -161,7 +161,7 @@ jobs:
       always() &&
       (needs.static-analysis-push.result == 'success' || needs.static-analysis-pr.result == 'success') &&
       (github.event_name == 'push' || (github.event_name == 'pull_request' && needs.check-approval.outputs.approved == 'true'))
-    needs: [check-permissions, check-approval, static-analysis-push, static-analysis-pr]
+    needs: [static-analysis-push, static-analysis-pr, check-approval]
     strategy:
       matrix:
         puppet: ['8']
