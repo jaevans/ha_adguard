@@ -1,3 +1,18 @@
+# Copyright (C) 2026 James Evans
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
 # @summary Manages adguardhome-sync for configuration replication
 #
 # @api private
@@ -19,15 +34,15 @@ class ha_adguard::sync {
       group   => 'root',
       mode    => '0600',
       content => epp('ha_adguard/sync_config.yaml.epp', {
-          'origin_url'    => $ha_adguard::sync_origin_url,
-          'username'      => $ha_adguard::sync_username,
-          'password'      => $ha_adguard::sync_password,
-          'replica_url'   => "http://127.0.0.1:${ha_adguard::bind_port}",
-          'interval'      => $ha_adguard::sync_interval,
-          'run_on_start'  => $ha_adguard::sync_run_on_start,
-          'api_enabled'   => $ha_adguard::sync_api_enabled,
-          'api_port'      => $ha_adguard::sync_api_port,
-          'sync_features' => $ha_adguard::sync_features,
+        'origin_url'    => $ha_adguard::sync_origin_url,
+        'username'      => $ha_adguard::sync_username,
+        'password'      => $ha_adguard::sync_password,
+        'replica_url'   => "http://127.0.0.1:${ha_adguard::bind_port}",
+        'interval'      => $ha_adguard::sync_interval,
+        'run_on_start'  => $ha_adguard::sync_run_on_start,
+        'api_enabled'   => $ha_adguard::sync_api_enabled,
+        'api_port'      => $ha_adguard::sync_api_port,
+        'sync_features' => $ha_adguard::sync_features,
       }),
       require => File['/etc/adguardhome-sync'],
     }

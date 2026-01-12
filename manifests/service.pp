@@ -1,3 +1,18 @@
+# Copyright (C) 2026 James Evans
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
 # @summary Manages AdGuard Home systemd service
 #
 # @api private
@@ -7,11 +22,11 @@ class ha_adguard::service {
     # Create systemd unit file using puppet/systemd module
     systemd::unit_file { 'adguardhome.service':
       content => epp('ha_adguard/adguardhome.service.epp', {
-          'install_dir' => $ha_adguard::install_dir,
-          'config_dir'  => $ha_adguard::config_dir,
-          'work_dir'    => $ha_adguard::work_dir,
-          'user'        => $ha_adguard::user,
-          'group'       => $ha_adguard::group,
+        'install_dir' => $ha_adguard::install_dir,
+        'config_dir'  => $ha_adguard::config_dir,
+        'work_dir'    => $ha_adguard::work_dir,
+        'user'        => $ha_adguard::user,
+        'group'       => $ha_adguard::group,
       }),
       enable  => $ha_adguard::service_enable,
       active  => $ha_adguard::service_ensure == 'running',

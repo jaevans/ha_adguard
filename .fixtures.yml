@@ -6,5 +6,3 @@ fixtures:
     firewall: 'https://github.com/puppetlabs/puppetlabs-firewall.git'
     systemd: 'https://github.com/voxpupuli/puppet-systemd.git'
     keepalived: 'https://github.com/voxpupuli/puppet-keepalived.git'
-  symlinks:
-    ha_adguard: '#{source_dir}'

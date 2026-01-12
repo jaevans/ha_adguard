@@ -1,5 +1,20 @@
 # frozen_string_literal: true
 
+# Copyright (C) 2026 James Evans
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 require 'spec_helper'
 
 describe 'ha_adguard::keepalived' do
@@ -34,7 +49,7 @@ describe 'ha_adguard::keepalived' do
 
         it do
           is_expected.to contain_class('keepalived').with(
-            service_manage: true,
+            service_manage: true
           )
         end
 
@@ -43,7 +58,7 @@ describe 'ha_adguard::keepalived' do
             ensure: 'file',
             owner: 'root',
             group: 'root',
-            mode: '0755',
+            mode: '0755'
           )
         end
 
@@ -51,7 +66,7 @@ describe 'ha_adguard::keepalived' do
           content = catalogue.resource('file', '/usr/local/bin/check_adguard.sh')[:content]
           expect(content).to match(%r{#!/bin/bash})
           expect(content).to match(%r{AdGuardHome})
-          expect(content).to match(/DNS_PORT=53/)
+          expect(content).to match(%r{DNS_PORT=53})
           expect(content).to match(%r{pgrep})
           expect(content).to match(%r{dig|nslookup})
         end
@@ -60,7 +75,7 @@ describe 'ha_adguard::keepalived' do
           is_expected.to contain_keepalived__vrrp__script('check_adguard').with(
             script: '/usr/local/bin/check_adguard.sh',
             interval: 2,
-            weight: -20,
+            weight: -20
           ).that_requires('File[/usr/local/bin/check_adguard.sh]')
         end
 
@@ -73,7 +88,7 @@ describe 'ha_adguard::keepalived' do
             auth_type: 'PASS',
             auth_pass: 'supersecret',
             virtual_ipaddress: ['192.168.1.100'],
-            track_script: ['check_adguard'],
+            track_script: ['check_adguard']
           )
         end
       end
@@ -91,7 +106,7 @@ describe 'ha_adguard::keepalived' do
 
         it do
           is_expected.to contain_keepalived__vrrp__script('check_adguard').with(
-            interval: 5,
+            interval: 5
           )
         end
       end
@@ -109,7 +124,7 @@ describe 'ha_adguard::keepalived' do
 
         it 'uses custom DNS port in health check script' do
           content = catalogue.resource('file', '/usr/local/bin/check_adguard.sh')[:content]
-          expect(content).to match(/DNS_PORT=5353/)
+          expect(content).to match(%r{DNS_PORT=5353})
         end
       end
 
@@ -126,7 +141,7 @@ describe 'ha_adguard::keepalived' do
 
         it { is_expected.to compile.with_all_deps }
 
-        # Note: keepalived::vrrp::instance and keepalived::vrrp::script resources
+        # NOTE: keepalived::vrrp::instance and keepalived::vrrp::script resources
         # do not support ensure => absent, so they won't be declared during removal.
         # Only the health check script file is removed.
         it { is_expected.not_to contain_keepalived__vrrp__instance('VI_ADGUARD') }
@@ -134,7 +149,7 @@ describe 'ha_adguard::keepalived' do
 
         it do
           is_expected.to contain_file('/usr/local/bin/check_adguard.sh').with(
-            ensure: 'absent',
+            ensure: 'absent'
           )
         end
       end
@@ -154,7 +169,7 @@ describe 'ha_adguard::keepalived' do
         it do
           is_expected.to contain_keepalived__vrrp__instance('VI_ADGUARD').with(
             priority: 100,
-            state: 'BACKUP',
+            state: 'BACKUP'
           )
         end
       end

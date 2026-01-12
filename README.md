@@ -122,7 +122,7 @@ class { 'ha_adguard':
   # Keepalived VIP configuration
   keepalived_enabled => true,
   vip_address        => '192.168.1.100',
-  vip_interface      => 'eth0',
+  vrrp_interface     => 'eth0',
   vrrp_priority      => 150,
   vrrp_router_id     => 51,
   vrrp_auth_pass     => Sensitive('secure_password_here'),
@@ -158,7 +158,7 @@ class { 'ha_adguard':
   # Keepalived VIP configuration
   keepalived_enabled => true,
   vip_address        => '192.168.1.100',
-  vip_interface      => 'eth0',
+  vrrp_interface     => 'eth0',
   vrrp_priority      => 100,  # Lower than primary
   vrrp_router_id     => 51,
   vrrp_auth_pass     => Sensitive('secure_password_here'),
@@ -243,8 +243,8 @@ include ha_adguard
 
 - `user` (String): System user for AdGuard Home. Default: `'adguard'`
 - `group` (String): System group for AdGuard Home. Default: `'adguard'`
-- `user_uid` (Optional[Integer]): UID for the system user. Default: `undef`
-- `group_gid` (Optional[Integer]): GID for the system group. Default: `undef`
+- `uid` (Optional[Integer]): UID for the system user. Default: `undef`
+- `gid` (Optional[Integer]): GID for the system group. Default: `undef`
 
 #### DNS Configuration
 
@@ -265,7 +265,7 @@ include ha_adguard
 
 - `keepalived_enabled` (Boolean): Enable Keepalived for VIP. Default: `false`
 - `vip_address` (Optional[Stdlib::IP::Address]): Virtual IP address. Required when keepalived_enabled is true.
-- `vip_interface` (Optional[String]): Network interface for VIP. Default: `'eth0'`
+- `vrrp_interface` (String): Network interface for VRRP. Default: `'eth0'`
 - `vrrp_priority` (Integer[1,254]): VRRP priority (higher = master). Default: `100`
 - `vrrp_router_id` (Integer[1,255]): VRRP router ID. Default: `51`
 - `vrrp_auth_pass` (Sensitive[String]): VRRP authentication password. Default: `Sensitive('changeme')`

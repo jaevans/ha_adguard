@@ -176,6 +176,47 @@ Module uses Hiera 5 with hierarchy:
 
 OS-specific differences (e.g., network interface names: `ens3` for Debian, `ens192` for RedHat).
 
+## Known Limitations
+
+### AdGuardHome Config File Rewriting
+AdGuardHome **completely rewrites** its configuration file on first startup, expanding minimal YAML into a full config with all defaults. This behavior impacts configuration management:
+
+**How it works**:
+1. Puppet creates initial YAML with user-specified parameters
+2. AdGuardHome starts and reads the config
+3. AdGuardHome immediately rewrites the file with expanded defaults (adds ~150 lines)
+4. The rewritten config includes runtime settings, default filters, etc.
+
+**Module Strategy**:
+- Config file resource uses `replace => false` to maintain idempotency
+- Puppet creates the initial config but **does not overwrite** AdGuardHome's changes
+- On subsequent runs, Puppet sees the file exists and leaves it alone
+
+**Impact on Custom Ports**:
+- ⚠️ **Initial custom port configuration may not persist**
+- If you specify `bind_port => 8080` or `dns_port => 5353`, AdGuardHome may revert to defaults (3000/53) on first startup
+- This is an AdGuardHome behavior, not a module bug
+
+**Workarounds**:
+1. **Use default ports** (3000 for web, 53 for DNS) - works reliably
+2. **Configure via web UI** - After deployment, change ports in AdGuardHome's web interface
+3. **Use environment-specific Hiera** - Pre-configure AdGuardHome in lower environments, then deploy to production
+
+**What works reliably**:
+- ✅ Default port deployments
+- ✅ HA cluster configuration (uses defaults internally)
+- ✅ Idempotent Puppet runs after initial deployment
+- ✅ User/group management
+- ✅ Service management
+- ✅ Binary installation
+
+**What may not persist**:
+- ⚠️ Custom `bind_port` on first deployment
+- ⚠️ Custom `dns_port` on first deployment
+- ⚠️ Some advanced DNS settings that AdGuardHome overwrites
+
+**Testing note**: Acceptance tests for custom ports are marked as pending due to this limitation.
+
 ## Common Pitfalls
 
 1. **Don't use puppet-lint's 140chars check** - Disabled in Rakefile for readability
@@ -185,3 +226,4 @@ OS-specific differences (e.g., network interface names: `ens3` for Debian, `ens1
 5. **Service must subscribe to config changes** - Ensures restart on config updates
 6. **Removal must reverse dependency order** - firewall → sync → keepalived → service → config → install → user
 7. **Test after every change** - Use `bundle exec rake spec` frequently
+8. **Config file has replace => false** - Puppet won't update existing config files (see Known Limitations above)

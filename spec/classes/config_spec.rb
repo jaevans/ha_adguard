@@ -1,5 +1,20 @@
 # frozen_string_literal: true
 
+# Copyright (C) 2026 James Evans
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 require 'spec_helper'
 
 describe 'ha_adguard::config' do
@@ -16,7 +31,7 @@ describe 'ha_adguard::config' do
             ensure: 'directory',
             owner: 'adguard',
             group: 'adguard',
-            mode: '0750',
+            mode: '0750'
           )
         end
 
@@ -25,7 +40,7 @@ describe 'ha_adguard::config' do
             ensure: 'file',
             owner: 'adguard',
             group: 'adguard',
-            mode: '0600',
+            mode: '0600'
           ).that_requires('File[/etc/adguardhome]')
         end
 
@@ -40,7 +55,7 @@ describe 'ha_adguard::config' do
           expect(config['bind_host']).to eq('0.0.0.0')
           expect(config['bind_port']).to eq(3000)
           expect(config['dns']['port']).to eq(53)
-          expect(config['dns']['enable_dnssec']).to eq(true)
+          expect(config['dns']['enable_dnssec']).to be(true)
         end
 
         it 'includes upstream DNS servers' do
@@ -71,8 +86,8 @@ describe 'ha_adguard::config' do
           expect(config['bind_port']).to eq(8080)
           expect(config['dns']['port']).to eq(5353)
           expect(config['dns']['upstream_dns']).to eq(['9.9.9.9', '1.1.1.1'])
-          expect(config['dns']['enable_dnssec']).to eq(false)
-          expect(config['filtering']['enabled']).to eq(false)
+          expect(config['dns']['enable_dnssec']).to be(false)
+          expect(config['filtering']['enabled']).to be(false)
         end
       end
 
@@ -97,7 +112,7 @@ describe 'ha_adguard::config' do
           config = YAML.safe_load(content)
           # Custom values should be present
           expect(config['dns']['cache_size']).to eq(8_388_608)
-          expect(config['querylog']['enabled']).to eq(false)
+          expect(config['querylog']['enabled']).to be(false)
           # Default values should still be present
           expect(config['dns']['port']).to eq(53)
           expect(config['bind_port']).to eq(3000)
@@ -113,7 +128,7 @@ describe 'ha_adguard::config' do
           is_expected.to contain_file('/etc/adguardhome').with(
             ensure: 'absent',
             force: true,
-            recurse: true,
+            recurse: true
           )
         end
       end
@@ -129,13 +144,13 @@ describe 'ha_adguard::config' do
 
         it do
           is_expected.to contain_file('/custom/config').with(
-            ensure: 'directory',
+            ensure: 'directory'
           )
         end
 
         it do
           is_expected.to contain_file('/custom/config/AdGuardHome.yaml').with(
-            ensure: 'file',
+            ensure: 'file'
           )
         end
       end

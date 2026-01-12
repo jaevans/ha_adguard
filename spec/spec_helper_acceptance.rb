@@ -1,5 +1,37 @@
 # frozen_string_literal: true
 
+# Copyright (C) 2026 James Evans
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+# Ruby 3.2+ compatibility fixes for deprecated methods
+unless Dir.respond_to?(:exists?)
+  class Dir
+    class << self
+      alias exists? exist?
+    end
+  end
+end
+
+unless File.respond_to?(:exists?)
+  class File
+    class << self
+      alias exists? exist?
+    end
+  end
+end
+
 # require 'beaker-rspec'
 require 'voxpupuli/acceptance/spec_helper_acceptance'
 
@@ -41,9 +73,7 @@ def apply_manifest_with_debug(manifest, opts = {})
   }
 
   # Only add catch_failures if no other catch/expect option is specified
-  unless opts.key?(:catch_changes) || opts.key?(:expect_changes) || opts.key?(:expect_failures)
-    default_opts[:catch_failures] = true
-  end
+  default_opts[:catch_failures] = true unless opts.key?(:catch_changes) || opts.key?(:expect_changes) || opts.key?(:expect_failures)
 
   opts = default_opts.merge(opts)
 
@@ -59,29 +89,31 @@ end
 
 # Helper to wait for service to be running
 def wait_for_service(host, service_name, timeout = 10)
-  counter = 0
-  loop do
+  max_attempts = 10
+  sleep_time = [timeout / max_attempts.to_f, 1].max
+
+  max_attempts.times do |attempt|
     result = on(host, "systemctl is-active #{service_name}", acceptable_exit_codes: [0, 3])
     break if result.stdout.strip == 'active'
 
-    counter += 1
-    raise "Service #{service_name} did not start within #{timeout} seconds" if counter >= timeout
+    raise "Service #{service_name} did not start within #{timeout} seconds" if attempt == max_attempts - 1
 
-    sleep 1
+    sleep sleep_time
   end
 end
 
 # Helper to wait for port to be listening
 def wait_for_port(host, port, timeout = 10)
-  counter = 0
-  loop do
+  max_attempts = 10
+  sleep_time = [timeout / max_attempts.to_f, 1].max
+
+  max_attempts.times do |attempt|
     result = on(host, "ss -tuln | grep -E ':#{port}\\s' || netstat -tuln | grep -E ':#{port}\\s'", acceptable_exit_codes: [0, 1])
     break if result.exit_code.zero?
 
-    counter += 1
-    raise "Port #{port} did not open within #{timeout} seconds" if counter >= timeout
+    raise "Port #{port} did not open within #{timeout} seconds" if attempt == max_attempts - 1
 
-    sleep 1
+    sleep sleep_time
   end
 end
 

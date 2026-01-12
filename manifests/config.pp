@@ -1,3 +1,18 @@
+# Copyright (C) 2026 James Evans
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
 # @summary Manages AdGuard Home configuration
 #
 # @api private
@@ -196,12 +211,16 @@ class ha_adguard::config {
     $merged_config = deep_merge($default_config, $ha_adguard::adguard_config)
 
     # Create configuration file
+    # Note: AdGuardHome rewrites this file on startup with expanded defaults.
+    # Using replace => false allows Puppet to create initial config but not
+    # overwrite AdGuardHome's runtime changes. This maintains idempotency.
     file { "${ha_adguard::config_dir}/AdGuardHome.yaml":
       ensure  => file,
       owner   => $ha_adguard::user,
       group   => $ha_adguard::group,
       mode    => '0600',
       content => stdlib::to_yaml($merged_config),
+      replace => false,
       require => File[$ha_adguard::config_dir],
     }
   } else {

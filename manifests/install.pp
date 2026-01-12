@@ -1,3 +1,18 @@
+# Copyright (C) 2026 James Evans
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
 # @summary Installs AdGuard Home and adguardhome-sync binaries
 #
 # @api private
@@ -51,7 +66,7 @@ class ha_adguard::install {
     exec { 'set_adguardhome_capabilities':
       command => "setcap 'CAP_NET_BIND_SERVICE=+eip CAP_NET_RAW=+eip' ${ha_adguard::install_dir}/AdGuardHome",
       path    => ['/usr/bin', '/usr/sbin', '/bin', '/sbin'],
-      unless  => "getcap ${ha_adguard::install_dir}/AdGuardHome | grep -q 'cap_net_bind_service,cap_net_raw+eip'",
+      unless  => "getcap ${ha_adguard::install_dir}/AdGuardHome | grep -qE 'cap_net_bind_service.*cap_net_raw'",
       require => File[$ha_adguard::install_dir],
     }
 
@@ -64,14 +79,16 @@ class ha_adguard::install {
 
     # Install adguardhome-sync if sync is enabled
     if $ha_adguard::sync_enabled {
-      $sync_binary = "adguardhome-sync_${ha_adguard::sync_version}_${os_type}_${arch}"
-      $sync_url = "https://github.com/bakito/adguardhome-sync/releases/download/v${ha_adguard::sync_version}/${sync_binary}"
+      $sync_archive = "adguardhome-sync_${ha_adguard::sync_version}_${os_type}_${arch}.tar.gz"
+      $sync_url = "https://github.com/bakito/adguardhome-sync/releases/download/v${ha_adguard::sync_version}/${sync_archive}"
 
-      archive { '/tmp/adguardhome-sync':
-        ensure  => present,
-        source  => $sync_url,
-        creates => '/usr/local/bin/adguardhome-sync',
-        cleanup => true,
+      archive { '/tmp/adguardhome-sync.tar.gz':
+        ensure       => present,
+        source       => $sync_url,
+        extract      => true,
+        extract_path => '/tmp',
+        creates      => '/tmp/adguardhome-sync',
+        cleanup      => true,
       }
 
       file { '/usr/local/bin/adguardhome-sync':
@@ -80,7 +97,7 @@ class ha_adguard::install {
         group   => 'root',
         mode    => '0755',
         source  => '/tmp/adguardhome-sync',
-        require => Archive['/tmp/adguardhome-sync'],
+        require => Archive['/tmp/adguardhome-sync.tar.gz'],
       }
     }
   } else {

@@ -14,9 +14,13 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"Anthropic.claude-code"
+				"Anthropic.claude-code",
+				"puppet.puppet-vscode"
 			]
 		}
+	},
+	"containerEnv": {
+		"DOCKER_IN_DOCKER": "1"
 	}
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},

@@ -1,23 +1,43 @@
+# Copyright (C) 2026 James Evans
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+#
 # @summary Manages Keepalived for VIP failover
 #
 # @api private
 #
 class ha_adguard::keepalived {
   if $ha_adguard::ensure == 'present' and $ha_adguard::keepalived_enabled {
-    # Include keepalived main class
-    class { 'keepalived':
-      service_manage => true,
-    }
-
-    # Create health check script
+    # Create health check script FIRST, before keepalived validates config
     file { '/usr/local/bin/check_adguard.sh':
       ensure  => file,
       owner   => 'root',
       group   => 'root',
       mode    => '0755',
       content => epp('ha_adguard/health_check.sh.epp', {
-          'dns_port' => $ha_adguard::dns_port,
+        'dns_port' => $ha_adguard::dns_port,
       }),
+    }
+
+    # Include keepalived main class after health check script
+    class { 'keepalived':
+      service_manage => true,
+      global_defs    => {
+        enable_script_security => true,
+        script_user            => 'root',
+      },
+      require        => File['/usr/local/bin/check_adguard.sh'],
     }
 
     # Define VRRP health check script

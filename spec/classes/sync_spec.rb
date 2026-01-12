@@ -1,5 +1,20 @@
 # frozen_string_literal: true
 
+# Copyright (C) 2026 James Evans
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 require 'spec_helper'
 
 describe 'ha_adguard::sync' do
@@ -49,7 +64,7 @@ describe 'ha_adguard::sync' do
             ensure: 'directory',
             owner: 'root',
             group: 'root',
-            mode: '0750',
+            mode: '0750'
           )
         end
 
@@ -58,7 +73,7 @@ describe 'ha_adguard::sync' do
             ensure: 'file',
             owner: 'root',
             group: 'root',
-            mode: '0600',
+            mode: '0600'
           ).that_requires('File[/etc/adguardhome-sync]')
         end
 
@@ -75,15 +90,15 @@ describe 'ha_adguard::sync' do
         it 'includes sync features' do
           content = catalogue.resource('file', '/etc/adguardhome-sync/config.yaml')[:content]
           config = YAML.safe_load(content)
-          expect(config['features']['general_settings']).to eq(true)
-          expect(config['features']['dns_config']).to eq(true)
-          expect(config['features']['filters']).to eq(true)
+          expect(config['features']['general_settings']).to be(true)
+          expect(config['features']['dns_config']).to be(true)
+          expect(config['features']['filters']).to be(true)
         end
 
         it do
           is_expected.to contain_systemd__unit_file('adguardhome-sync.service').with(
             enable: true,
-            active: true,
+            active: true
           )
         end
 
@@ -99,16 +114,16 @@ describe 'ha_adguard::sync' do
         it do
           is_expected.to contain_service('adguardhome-sync').with(
             ensure: 'running',
-            enable: true,
+            enable: true
           ).that_requires([
-            'Systemd::Unit_file[adguardhome-sync.service]',
-            'Service[adguardhome]',
-          ])
+                            'Systemd::Unit_file[adguardhome-sync.service]',
+                            'Service[adguardhome]',
+                          ])
         end
 
         it 'service subscribes to config changes' do
           is_expected.to contain_service('adguardhome-sync').that_subscribes_to(
-            'File[/etc/adguardhome-sync/config.yaml]',
+            'File[/etc/adguardhome-sync/config.yaml]'
           )
         end
       end
@@ -138,8 +153,8 @@ describe 'ha_adguard::sync' do
           expect(config['origin']['username']).to eq('syncuser')
           expect(config['origin']['password']).to eq('test123')
           expect(config['replicas'].first['url']).to eq('http://127.0.0.1:8080')
-          expect(config['runOnStart']).to eq(false)
-          expect(config['api']['enabled']).to eq(false)
+          expect(config['runOnStart']).to be(false)
+          expect(config['api']['enabled']).to be(false)
           expect(config['api']['port']).to eq(9090)
         end
       end
@@ -159,8 +174,8 @@ describe 'ha_adguard::sync' do
         it 'uses custom sync features' do
           content = catalogue.resource('file', '/etc/adguardhome-sync/config.yaml')[:content]
           config = YAML.safe_load(content)
-          expect(config['features']['general_settings']).to eq(true)
-          expect(config['features']['filters']).to eq(true)
+          expect(config['features']['general_settings']).to be(true)
+          expect(config['features']['filters']).to be(true)
           expect(config['features'].keys).to contain_exactly('general_settings', 'filters')
         end
       end
@@ -182,13 +197,13 @@ describe 'ha_adguard::sync' do
         it do
           is_expected.to contain_service('adguardhome-sync').with(
             ensure: 'stopped',
-            enable: false,
+            enable: false
           ).that_comes_before('Systemd::Unit_file[adguardhome-sync.service]')
         end
 
         it do
           is_expected.to contain_systemd__unit_file('adguardhome-sync.service').with(
-            ensure: 'absent',
+            ensure: 'absent'
           )
         end
 
@@ -196,7 +211,7 @@ describe 'ha_adguard::sync' do
           is_expected.to contain_file('/etc/adguardhome-sync').with(
             ensure: 'absent',
             force: true,
-            recurse: true,
+            recurse: true
           )
         end
       end

@@ -1,5 +1,20 @@
 # frozen_string_literal: true
 
+# Copyright (C) 2026 James Evans
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 require 'spec_helper'
 
 describe 'ha_adguard::user' do
@@ -14,7 +29,7 @@ describe 'ha_adguard::user' do
         it do
           is_expected.to contain_group('adguard').with(
             ensure: 'present',
-            system: true,
+            system: true
           )
         end
 
@@ -25,7 +40,7 @@ describe 'ha_adguard::user' do
             shell: '/usr/sbin/nologin',
             home: '/var/lib/adguardhome',
             comment: 'AdGuard Home service user',
-            managehome: false,
+            managehome: false
           ).that_requires('Group[adguard]')
         end
 
@@ -34,7 +49,7 @@ describe 'ha_adguard::user' do
             ensure: 'directory',
             owner: 'adguard',
             group: 'adguard',
-            mode: '0750',
+            mode: '0750'
           ).that_requires('User[adguard]')
         end
       end
@@ -55,7 +70,7 @@ describe 'ha_adguard::user' do
           is_expected.to contain_group('customgroup').with(
             ensure: 'present',
             gid: 5000,
-            system: true,
+            system: true
           )
         end
 
@@ -64,7 +79,7 @@ describe 'ha_adguard::user' do
             ensure: 'present',
             uid: 5000,
             gid: 'customgroup',
-            system: true,
+            system: true
           )
         end
       end
@@ -78,19 +93,19 @@ describe 'ha_adguard::user' do
           is_expected.to contain_file('/var/lib/adguardhome').with(
             ensure: 'absent',
             force: true,
-            recurse: true,
+            recurse: true
           )
         end
 
         it do
           is_expected.to contain_user('adguard').with(
-            ensure: 'absent',
+            ensure: 'absent'
           ).that_requires('File[/var/lib/adguardhome]')
         end
 
         it do
           is_expected.to contain_group('adguard').with(
-            ensure: 'absent',
+            ensure: 'absent'
           ).that_requires('User[adguard]')
         end
       end

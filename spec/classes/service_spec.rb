@@ -1,5 +1,20 @@
 # frozen_string_literal: true
 
+# Copyright (C) 2026 James Evans
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 require 'spec_helper'
 
 describe 'ha_adguard::service' do
@@ -14,7 +29,7 @@ describe 'ha_adguard::service' do
         it do
           is_expected.to contain_systemd__unit_file('adguardhome.service').with(
             enable: true,
-            active: true,
+            active: true
           )
         end
 
@@ -35,13 +50,13 @@ describe 'ha_adguard::service' do
         it do
           is_expected.to contain_service('adguardhome').with(
             ensure: 'running',
-            enable: true,
+            enable: true
           ).that_requires('Systemd::Unit_file[adguardhome.service]')
         end
 
         it 'service subscribes to config changes' do
           is_expected.to contain_service('adguardhome').that_subscribes_to(
-            'File[/etc/adguardhome/AdGuardHome.yaml]',
+            'File[/etc/adguardhome/AdGuardHome.yaml]'
           )
         end
       end
@@ -57,7 +72,7 @@ describe 'ha_adguard::service' do
 
         it do
           is_expected.to contain_service('adguardhome').with(
-            ensure: 'stopped',
+            ensure: 'stopped'
           )
         end
       end
@@ -73,13 +88,13 @@ describe 'ha_adguard::service' do
 
         it do
           is_expected.to contain_service('adguardhome').with(
-            enable: false,
+            enable: false
           )
         end
 
         it do
           is_expected.to contain_systemd__unit_file('adguardhome.service').with(
-            enable: false,
+            enable: false
           )
         end
       end
@@ -106,13 +121,13 @@ describe 'ha_adguard::service' do
         it do
           is_expected.to contain_service('adguardhome').with(
             ensure: 'stopped',
-            enable: false,
+            enable: false
           ).that_comes_before('Systemd::Unit_file[adguardhome.service]')
         end
 
         it do
           is_expected.to contain_systemd__unit_file('adguardhome.service').with(
-            ensure: 'absent',
+            ensure: 'absent'
           )
         end
       end

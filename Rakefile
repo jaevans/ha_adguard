@@ -1,15 +1,7 @@
-require 'puppetlabs_spec_helper/rake_tasks'
+require 'voxpupuli/test/rake'
 require 'puppet-syntax/tasks/puppet-syntax'
 require 'puppet-lint/tasks/puppet-lint'
 require 'voxpupuli/acceptance/rake'
-
-
-# Load beaker tasks if in acceptance test environment
-begin
-  require 'beaker-rspec/rake_task'
-rescue LoadError
-  # Beaker not available (likely not in acceptance test group)
-end
 
 PuppetLint.configuration.send('disable_140chars')
 PuppetLint.configuration.send('disable_autoloader_layout')
@@ -28,30 +20,31 @@ task :validate do
   end
 end
 
-# Acceptance test tasks
+# Configure acceptance tests with voxpupuli-acceptance
+# This provides the default 'beaker' task and platform-specific tasks
 namespace :acceptance do
-  desc 'Run acceptance tests on Debian 12'
-  task :debian do
-    sh 'BEAKER_set=debian12-docker bundle exec rspec spec/acceptance'
-  end
-
-  desc 'Run acceptance tests on Rocky 9'
-  task :rocky do
-    sh 'BEAKER_set=rocky9-docker bundle exec rspec spec/acceptance'
-  end
-
-  desc 'Run HA cluster acceptance tests'
-  task :cluster do
-    sh 'BEAKER_set=ha-cluster-docker bundle exec rspec spec/acceptance/02_ha_cluster_spec.rb'
+  {
+    debian: 'debian12-docker',
+    rocky: 'rocky9-docker',
+    cluster: 'ha-cluster-docker'
+  }.each do |name, nodeset|
+    desc "Run acceptance tests on #{nodeset}"
+    RSpec::Core::RakeTask.new(name) do |t|
+      t.pattern = if name == :cluster
+                    'spec/acceptance/02_ha_cluster_spec.rb'
+                  else
+                    'spec/acceptance'
+                  end
+      ENV['BEAKER_set'] = nodeset
+    end
   end
 
   desc 'Run all acceptance tests on all platforms'
-  task :all do
-    %w[debian rocky cluster].each do |platform|
-      Rake::Task["acceptance:#{platform}"].invoke
-    end
-  end
+  task all: %i[debian rocky cluster]
 end
 
 desc 'Run acceptance tests (Debian 12 by default)'
 task acceptance: 'acceptance:debian'
+
+
+task :beaker => "fixtures:prep"

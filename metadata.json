@@ -1,12 +1,12 @@
 {
   "name": "james-ha_adguard",
   "version": "1.0.0",
-  "author": "James",
+  "author": "James Evans",
   "summary": "Manage AdGuard Home in high-availability configuration",
-  "license": "Apache-2.0",
-  "source": "https://github.com/yourusername/ha_adguard",
-  "project_page": "https://github.com/yourusername/ha_adguard",
-  "issues_url": "https://github.com/yourusername/ha_adguard/issues",
+  "license": "AGPL-3.0",
+  "source": "https://github.com/jaevans/ha_adguard",
+  "project_page": "https://github.com/jaevans/ha_adguard",
+  "issues_url": "https://github.com/jaevans/ha_adguard/issues",
   "dependencies": [
     {
       "name": "puppetlabs/stdlib",
@@ -82,11 +82,8 @@
   ],
   "requirements": [
     {
-      "name": "puppet",
+      "name": "openvox",
       "version_requirement": ">= 8.0.0 < 9.0.0"
     }
-  ],
-  "pdk-version": "3.0.0",
-  "template-url": "pdk-default#3.0.0",
-  "template-ref": "tags/3.0.0-0-g5d17ec1"
+  ]
 }

@@ -1,0 +1,7 @@
+inherit_gem:
+  voxpupuli-test: rubocop.yml
+
+RSpec/MultipleMemoizedHelpers:
+  Max: 10
+  Exclude:
+    - 'spec/acceptance/**/*_spec.rb'

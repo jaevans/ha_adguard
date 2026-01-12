@@ -1,5 +1,20 @@
 # frozen_string_literal: true
 
+# Copyright (C) 2026 James Evans
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
 require 'spec_helper'
 
 describe 'ha_adguard::install' do
@@ -11,16 +26,6 @@ describe 'ha_adguard::install' do
       context 'with ensure => present' do
         it { is_expected.to compile.with_all_deps }
 
-        # Determine expected architecture
-        expected_arch = case os_facts[:os][:architecture]
-                        when 'x86_64', 'amd64'
-                          'amd64'
-                        when 'aarch64'
-                          'arm64'
-                        when 'armv7l'
-                          'armv7'
-                        end
-
         it do
           is_expected.to contain_archive('/tmp/AdGuardHome.tar.gz').with(
             ensure: 'present',
@@ -29,7 +34,7 @@ describe 'ha_adguard::install' do
             creates: '/opt/AdGuardHome/AdGuardHome',
             cleanup: true,
             user: 'root',
-            group: 'root',
+            group: 'root'
           )
         end
 
@@ -39,21 +44,21 @@ describe 'ha_adguard::install' do
             owner: 'adguard',
             group: 'adguard',
             mode: '0755',
-            recurse: true,
+            recurse: true
           ).that_requires(['Archive[/tmp/AdGuardHome.tar.gz]', 'User[adguard]'])
         end
 
         it do
           is_expected.to contain_exec('set_adguardhome_capabilities').with(
             command: "setcap 'CAP_NET_BIND_SERVICE=+eip CAP_NET_RAW=+eip' /opt/AdGuardHome/AdGuardHome",
-            path: ['/usr/bin', '/usr/sbin', '/bin', '/sbin'],
+            path: ['/usr/bin', '/usr/sbin', '/bin', '/sbin']
           ).that_requires('File[/opt/AdGuardHome]')
         end
 
         it do
           is_expected.to contain_file('/usr/local/bin/adguardhome').with(
             ensure: 'link',
-            target: '/opt/AdGuardHome/AdGuardHome',
+            target: '/opt/AdGuardHome/AdGuardHome'
           ).that_requires('File[/opt/AdGuardHome]')
         end
       end
@@ -70,10 +75,10 @@ describe 'ha_adguard::install' do
         it { is_expected.to compile.with_all_deps }
 
         it do
-          is_expected.to contain_archive('/tmp/adguardhome-sync').with(
+          is_expected.to contain_archive('/tmp/adguardhome-sync.tar.gz').with(
             ensure: 'present',
-            creates: '/usr/local/bin/adguardhome-sync',
-            cleanup: true,
+            creates: '/tmp/adguardhome-sync',
+            cleanup: true
           )
         end
 
@@ -82,8 +87,8 @@ describe 'ha_adguard::install' do
             ensure: 'file',
             owner: 'root',
             group: 'root',
-            mode: '0755',
-          ).that_requires('Archive[/tmp/adguardhome-sync]')
+            mode: '0755'
+          ).that_requires('Archive[/tmp/adguardhome-sync.tar.gz]')
         end
       end
 
@@ -94,13 +99,13 @@ describe 'ha_adguard::install' do
 
         it do
           is_expected.to contain_file('/usr/local/bin/adguardhome').with(
-            ensure: 'absent',
+            ensure: 'absent'
           )
         end
 
         it do
           is_expected.to contain_file('/usr/local/bin/adguardhome-sync').with(
-            ensure: 'absent',
+            ensure: 'absent'
           )
         end
 
@@ -108,7 +113,7 @@ describe 'ha_adguard::install' do
           is_expected.to contain_file('/opt/AdGuardHome').with(
             ensure: 'absent',
             force: true,
-            recurse: true,
+            recurse: true
           )
         end
       end
@@ -124,13 +129,13 @@ describe 'ha_adguard::install' do
 
         it do
           is_expected.to contain_file('/custom/adguard').with(
-            ensure: 'directory',
+            ensure: 'directory'
           )
         end
 
         it do
           is_expected.to contain_exec('set_adguardhome_capabilities').with(
-            command: "setcap 'CAP_NET_BIND_SERVICE=+eip CAP_NET_RAW=+eip' /custom/adguard/AdGuardHome",
+            command: "setcap 'CAP_NET_BIND_SERVICE=+eip CAP_NET_RAW=+eip' /custom/adguard/AdGuardHome"
           )
         end
       end
