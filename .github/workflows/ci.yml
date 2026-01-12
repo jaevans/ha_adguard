@@ -104,7 +104,7 @@ jobs:
     if: |
       github.event_name == 'push' ||
       (github.event_name == 'pull_request' && needs.check-approval.outputs.approved == 'true')
-    needs: [check-permissions, check-approval]
+    needs: check-approval
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
