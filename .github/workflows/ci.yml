@@ -178,13 +178,48 @@ jobs:
         run: bundle exec rake spec
 
   # Run acceptance tests
+  acceptance-tests-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    if: github.event_name == 'push'
+    needs: [unit-tests]
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: ['debian', 'rocky']
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Run acceptance tests on ${{ matrix.platform }}
+        run: DOCKER_IN_DOCKER=1 bundle exec rake acceptance:${{ matrix.platform }}
+        timeout-minutes: 30
+
+      - name: Upload test logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: acceptance-logs-${{ matrix.platform }}
+          path: |
+            log/
+            junit/
+          retention-days: 7
+
   acceptance-tests:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    if: |
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request' && needs.check-approval.outputs.approved == 'true')
+    if: github.event_name == 'pull_request' && needs.check-approval.outputs.approved == 'true'
     needs: [check-approval, unit-tests]
     strategy:
       fail-fast: false
