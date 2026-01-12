@@ -158,8 +158,9 @@ jobs:
     permissions:
       contents: read
     if: |
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request' && needs.check-approval.outputs.approved == 'true')
+      always() &&
+      (needs.static-analysis-push.result == 'success' || needs.static-analysis-pr.result == 'success') &&
+      (github.event_name == 'push' || (github.event_name == 'pull_request' && needs.check-approval.outputs.approved == 'true'))
     needs: [check-permissions, check-approval, static-analysis-push, static-analysis-pr]
     strategy:
       matrix:
