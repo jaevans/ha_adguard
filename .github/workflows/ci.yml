@@ -160,7 +160,7 @@ jobs:
     if: |
       github.event_name == 'push' ||
       (github.event_name == 'pull_request' && needs.check-approval.outputs.approved == 'true')
-    needs: [check-permissions, check-approval, static-analysis]
+    needs: [check-approval, static-analysis-push, static-analysis-pr]
     strategy:
       matrix:
         puppet: ['8']
@@ -225,7 +225,7 @@ jobs:
     if: |
       github.event_name == 'pull_request' &&
       needs.check-approval.outputs.approved == 'false'
-    needs: [check-permissions, check-approval]
+    needs: check-approval
     steps:
       - name: Comment on PR
         uses: actions/github-script@v7
