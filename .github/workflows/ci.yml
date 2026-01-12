@@ -95,15 +95,40 @@ jobs:
             console.log(`Is member: ${isMember}, Has safe-to-test label: ${hasLabel}, Approved: ${approved}`);
             core.setOutput('approved', approved);
 
-  # Lint and syntax validation
-  static-analysis:
+  # Lint and syntax validation on push (no approval required)
+  static-analysis-push:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    # Run on push to main or if PR is approved
-    if: |
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request' && needs.check-approval.outputs.approved == 'true')
+    if: github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+
+      - name: Run Puppet syntax validation
+        run: bundle exec rake syntax
+
+      - name: Run Puppet lint
+        run: bundle exec rake lint
+
+      - name: Run RuboCop
+        run: bundle exec rake rubocop
+
+      - name: Run metadata lint
+        run: bundle exec rake metadata_lint
+
+  # Lint and syntax validation on PR (requires approval)
+  static-analysis-pr:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    if: github.event_name == 'pull_request' && needs.check-approval.outputs.approved == 'true'
     needs: check-approval
     steps:
       - name: Checkout code
