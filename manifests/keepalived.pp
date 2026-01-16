@@ -26,7 +26,7 @@ class ha_adguard::keepalived {
       group   => 'root',
       mode    => '0755',
       content => epp('ha_adguard/health_check.sh.epp', {
-        'dns_port' => $ha_adguard::dns_port,
+          'dns_port' => $ha_adguard::dns_port,
       }),
     }
 
@@ -49,9 +49,17 @@ class ha_adguard::keepalived {
     }
 
     # Define VRRP instance for AdGuard Home
+    # Primary nodes start as MASTER to enable automatic failback
+    # Replica nodes start as BACKUP
+    $vrrp_state = $ha_adguard::ha_role ? {
+      'primary' => 'MASTER',
+      'replica' => 'BACKUP',
+      default   => 'BACKUP',
+    }
+
     keepalived::vrrp::instance { 'VI_ADGUARD':
       interface         => $ha_adguard::vrrp_interface,
-      state             => 'BACKUP',
+      state             => $vrrp_state,
       virtual_router_id => $ha_adguard::vrrp_router_id,
       priority          => $ha_adguard::vrrp_priority,
       auth_type         => 'PASS',
