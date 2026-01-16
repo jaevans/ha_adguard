@@ -272,42 +272,31 @@ Approximate execution times on a modern development machine:
 
 ## Continuous Integration
 
-### GitHub Actions Workflow
+### GitHub Actions Workflows
 
-A sample GitHub Actions workflow for CI:
+This module includes automated testing workflows in `.github/workflows/`:
 
-```yaml
-name: CI
+**Unit Tests** (`unit-tests.yml`):
+- Runs on every push and pull request
+- Validates manifests, runs puppet-lint, and executes RSpec tests
+- Duration: ~30-35 minutes
 
-on: [push, pull_request]
+**Acceptance Tests** (`acceptance-tests.yml`):
+- Runs Beaker tests on Debian 12, Rocky 9, and HA cluster
+- Uses Docker containers for isolation
+- Includes security controls for non-collaborator PRs
+- Duration: ~25-35 minutes (parallel execution)
 
-jobs:
-  unit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.1'
-          bundler-cache: true
-      - run: bundle exec rake spec
-      - run: bundle exec rake lint
-      - run: bundle exec rake validate
+See [.github/workflows/README.md](.github/workflows/README.md) for:
+- Detailed workflow documentation
+- Security model explanation
+- How to approve non-collaborator PRs
+- Troubleshooting CI issues
 
-  acceptance:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        nodeset: [debian12-docker, rocky9-docker]
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.1'
-          bundler-cache: true
-      - run: bundle install --with acceptance
-      - run: BEAKER_set=${{ matrix.nodeset }} bundle exec rspec spec/acceptance
-```
+**For Contributors:**
+The workflows will run automatically on your PRs if you're a repository collaborator.
+If you're a first-time contributor, a maintainer will need to add the `safe-to-test`
+label to approve your PR for testing.
 
 ## Troubleshooting
 
