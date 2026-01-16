@@ -85,7 +85,9 @@
 #   Virtual IP address (required if keepalived_enabled)
 #
 # @param vrrp_priority
-#   VRRP priority (higher = preferred master)
+#   VRRP priority (higher = preferred master). Primary nodes should use a higher
+#   value (e.g., 150) than replica nodes (e.g., 100) to enable automatic failback.
+#   Both nodes MUST have different priorities for proper failover/failback behavior.
 #
 # @param vrrp_router_id
 #   VRRP router ID
@@ -260,6 +262,14 @@ class ha_adguard (
 
   if $sync_enabled and !$sync_origin_url and $ha_role == 'replica' {
     fail('sync_origin_url is required when sync_enabled is true on replica nodes')
+  }
+
+  if $keepalived_enabled and $ha_role == 'primary' and $vrrp_priority <= 100 {
+    warning('Primary node should have vrrp_priority > 100 (e.g., 150) to ensure automatic failback. Replica should use lower priority (e.g., 100).')
+  }
+
+  if $keepalived_enabled and $ha_role == 'replica' and $vrrp_priority >= 150 {
+    warning('Replica node should have vrrp_priority < 150 (e.g., 100) to allow primary to reclaim VIP. Primary should use higher priority (e.g., 150).')
   }
 
   # Contain all classes and set dependencies

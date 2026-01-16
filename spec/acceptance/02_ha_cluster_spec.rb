@@ -327,6 +327,85 @@ describe 'ha_adguard HA cluster' do
         result = on(replica_host, 'journalctl -u adguardhome-sync --no-pager | grep -i "sync" || echo "No sync logs yet"')
         expect(result.stdout).not_to be_empty
       end
+
+      # Issue #1: Config replication only works on replica
+      it 'sync service only runs on replica, not on primary' do
+        on(replica_host, 'systemctl is-active adguardhome-sync')
+        on(primary_host, 'systemctl is-enabled adguardhome-sync', acceptable_exit_codes: [1])
+      end
+
+      it 'sync config only exists on replica' do
+        on(replica_host, 'test -f /etc/adguardhome-sync/config.yaml')
+        on(primary_host, 'test ! -f /etc/adguardhome-sync/config.yaml')
+      end
+
+      it 'sync binary only exists on replica when sync is enabled' do
+        on(replica_host, 'test -f /usr/local/bin/adguardhome-sync')
+      end
+    end
+
+    # Issue #2 & #3: Keepalived state and priority for automatic failback
+    describe 'keepalived failback configuration' do
+      it 'primary uses MASTER state for automatic failback' do
+        result = on(primary_host, 'grep -E "^\\s*state\\s+MASTER" /etc/keepalived/keepalived.conf')
+        expect(result.exit_code).to eq(0)
+      end
+
+      it 'replica uses BACKUP state' do
+        result = on(replica_host, 'grep -E "^\\s*state\\s+BACKUP" /etc/keepalived/keepalived.conf')
+        expect(result.exit_code).to eq(0)
+      end
+
+      it 'primary has higher priority than replica for failback' do
+        primary_priority = on(primary_host, "grep -oP 'priority\\s+\\K\\d+' /etc/keepalived/keepalived.conf | head -1").stdout.strip.to_i
+        replica_priority = on(replica_host, "grep -oP 'priority\\s+\\K\\d+' /etc/keepalived/keepalived.conf | head -1").stdout.strip.to_i
+
+        expect(primary_priority).to eq(150)
+        expect(replica_priority).to eq(100)
+        expect(primary_priority).to be > replica_priority
+      end
+
+      it 'primary and replica have different priorities' do
+        primary_priority = on(primary_host, "grep -oP 'priority\\s+\\K\\d+' /etc/keepalived/keepalived.conf | head -1").stdout.strip.to_i
+        replica_priority = on(replica_host, "grep -oP 'priority\\s+\\K\\d+' /etc/keepalived/keepalived.conf | head -1").stdout.strip.to_i
+
+        expect(primary_priority).not_to eq(replica_priority)
+      end
+    end
+
+    describe 'VIP failover and failback' do
+      before(:each) do
+        # Wait for services to stabilize
+        wait_for_service(primary_host, 'keepalived', 60)
+        wait_for_service(replica_host, 'keepalived', 60)
+        sleep 15 # Allow VRRP to negotiate
+      end
+
+      it 'VIP is initially on primary (higher priority)' do
+        result = on(primary_host, "ip addr show | grep '#{vip}' || echo 'VIP not found'")
+        expect(result.stdout).to match(%r{#{vip}})
+      end
+
+      it 'VIP fails over to replica when primary keepalived stops' do
+        on(primary_host, 'systemctl stop keepalived')
+        sleep 10 # Wait for failover
+
+        result = on(replica_host, "ip addr show | grep '#{vip}' || echo 'VIP not found'")
+        expect(result.stdout).to match(%r{#{vip}})
+      end
+
+      it 'VIP fails back to primary when primary keepalived restarts' do
+        # Primary keepalived should already be stopped from previous test
+        on(primary_host, 'systemctl start keepalived')
+        sleep 15 # Wait for VRRP negotiation and failback
+
+        result = on(primary_host, "ip addr show | grep '#{vip}' || echo 'VIP not found'")
+        expect(result.stdout).to match(%r{#{vip}})
+
+        # Verify it's not on replica anymore
+        result_replica = on(replica_host, "ip addr show | grep '#{vip}' || echo 'VIP not found'")
+        expect(result_replica.stdout).to match(%r{VIP not found})
+      end
     end
   end
 

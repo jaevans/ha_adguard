@@ -173,6 +173,43 @@ describe 'ha_adguard::keepalived' do
           )
         end
       end
-    end
-  end
-end
+
+      # Issue #2: Primary node should use MASTER state for automatic failback
+      context 'primary node configuration' do
+        let(:pre_condition) do
+          <<-PUPPET
+          class { 'ha_adguard':
+            ha_role            => 'primary',
+            keepalived_enabled => true,
+            vip_address        => '192.168.1.100',
+            vrrp_priority      => 150,
+          }
+          PUPPET
+        end
+
+        it do
+          is_expected.to contain_keepalived__vrrp__instance('VI_ADGUARD').with(
+            priority: 150,
+            state: 'MASTER'
+          )
+        end
+      end
+
+      # Issue #2: Default role should use BACKUP state
+      context 'node without specified role' do
+        let(:pre_condition) do
+          <<-PUPPET
+          class { 'ha_adguard':
+            keepalived_enabled => true,
+            vip_address        => '192.168.1.100',
+            vrrp_priority      => 120,
+          }
+          PUPPET
+        end
+
+        it do
+          is_expected.to contain_keepalived__vrrp__instance('VI_ADGUARD').with(
+            state: 'BACKUP'
+          )
+        end
+      end
