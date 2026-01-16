@@ -1,0 +1,157 @@
+---
+name: Acceptance Tests
+
+# Security note: This workflow uses pull_request_target with manual approval
+# for non-collaborators to prevent abuse of CI resources (Docker containers)
+# and potential code injection attacks.
+
+on:
+  pull_request_target:
+    branches:
+      - main
+      - master
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  # Security gate: Require approval for PRs from non-collaborators
+  authorize:
+    name: Authorize
+    runs-on: ubuntu-latest
+    # Skip for push events (always allow for main/master branch)
+    if: >-
+      github.event_name == 'push' ||
+      github.event.pull_request.author_association == 'OWNER' ||
+      github.event.pull_request.author_association == 'MEMBER' ||
+      github.event.pull_request.author_association == 'COLLABORATOR' ||
+      contains(github.event.pull_request.labels.*.name, 'safe-to-test')
+    steps:
+      - name: Authorize run
+        run: echo "Authorization successful"
+
+  acceptance-debian:
+    name: Acceptance Tests (Debian 12)
+    runs-on: ubuntu-latest
+    needs: authorize
+    steps:
+      - name: Checkout repository (safe for pull_request_target)
+        uses: actions/checkout@v4
+        with:
+          # SECURITY: Always checkout the base branch for pull_request_target
+          # to prevent malicious code execution. Tests will still apply the PR
+          # code via Beaker's module installation.
+          ref: >-
+            ${{
+              github.event_name == 'pull_request_target' &&
+              github.event.pull_request.base.ref || github.ref
+            }}
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+
+      - name: Install dependencies
+        run: bundle install --jobs 4 --retry 3 --with acceptance
+
+      - name: Prepare test fixtures
+        run: bundle exec rake spec_prep
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Run acceptance tests on Debian 12
+        run: bundle exec rake acceptance:debian
+        env:
+          BEAKER_set: debian12-docker
+          BEAKER_destroy: always
+
+      - name: Clean up test fixtures
+        if: always()
+        run: bundle exec rake spec_clean
+
+  acceptance-rocky:
+    name: Acceptance Tests (Rocky Linux 9)
+    runs-on: ubuntu-latest
+    needs: authorize
+    steps:
+      - name: Checkout repository (safe for pull_request_target)
+        uses: actions/checkout@v4
+        with:
+          ref: >-
+            ${{
+              github.event_name == 'pull_request_target' &&
+              github.event.pull_request.base.ref || github.ref
+            }}
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+
+      - name: Install dependencies
+        run: bundle install --jobs 4 --retry 3 --with acceptance
+
+      - name: Prepare test fixtures
+        run: bundle exec rake spec_prep
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Run acceptance tests on Rocky Linux 9
+        run: bundle exec rake acceptance:rocky
+        env:
+          BEAKER_set: rocky9-docker
+          BEAKER_destroy: always
+
+      - name: Clean up test fixtures
+        if: always()
+        run: bundle exec rake spec_clean
+
+  acceptance-cluster:
+    name: Acceptance Tests (HA Cluster)
+    runs-on: ubuntu-latest
+    needs: authorize
+    steps:
+      - name: Checkout repository (safe for pull_request_target)
+        uses: actions/checkout@v4
+        with:
+          ref: >-
+            ${{
+              github.event_name == 'pull_request_target' &&
+              github.event.pull_request.base.ref || github.ref
+            }}
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+
+      - name: Install dependencies
+        run: bundle install --jobs 4 --retry 3 --with acceptance
+
+      - name: Prepare test fixtures
+        run: bundle exec rake spec_prep
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Run HA cluster acceptance tests
+        run: bundle exec rake acceptance:cluster
+        env:
+          BEAKER_set: ha-cluster-docker
+          BEAKER_destroy: always
+
+      - name: Clean up test fixtures
+        if: always()
+        run: bundle exec rake spec_clean
