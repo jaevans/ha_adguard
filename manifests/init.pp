@@ -85,7 +85,9 @@
 #   Virtual IP address (required if keepalived_enabled)
 #
 # @param vrrp_priority
-#   VRRP priority (higher = preferred master)
+#   VRRP priority (higher = preferred master). Primary nodes should use a higher
+#   value (e.g., 150) than replica nodes (e.g., 100) to enable automatic failback.
+#   Both nodes MUST have different priorities for proper failover/failback behavior.
 #
 # @param vrrp_router_id
 #   VRRP router ID
@@ -210,13 +212,13 @@ class ha_adguard (
 
   # High Availability configuration
   Boolean $ha_enabled = false,
-  Enum['primary', 'replica'] $ha_role = 'primary',
+  Enum['primary', 'replica'] $ha_role = 'replica',
   Array[String[1]] $cluster_nodes = [],
 
   # Keepalived configuration
   Boolean $keepalived_enabled = false,
   Optional[Stdlib::IP::Address] $vip_address = undef,
-  Integer[0,255] $vrrp_priority = 100,
+  Integer[0,255] $vrrp_priority = $ha_role ? { 'primary' => 150, 'replica' => 100 },
   Integer[1,255] $vrrp_router_id = 51,
   String[1] $vrrp_auth_pass = 'changeme',
   String[1] $vrrp_interface = 'eth0',

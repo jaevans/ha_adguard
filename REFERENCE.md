@@ -290,7 +290,7 @@ Data type: `Enum['primary', 'replica']`
 
 HA role (primary or replica)
 
-Default value: `'primary'`
+Default value: `'replica'`
 
 ##### <a name="-ha_adguard--cluster_nodes"></a>`cluster_nodes`
 
@@ -320,9 +320,11 @@ Default value: `undef`
 
 Data type: `Integer[0,255]`
 
-VRRP priority (higher = preferred master)
+VRRP priority (higher = preferred master). Primary nodes should use a higher
+value (e.g., 150) than replica nodes (e.g., 100) to enable automatic failback.
+Both nodes MUST have different priorities for proper failover/failback behavior.
 
-Default value: `100`
+Default value: `$ha_role ? { 'primary' => 150, 'replica' => 100`
 
 ##### <a name="-ha_adguard--vrrp_router_id"></a>`vrrp_router_id`
 

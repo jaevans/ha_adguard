@@ -25,11 +25,10 @@ ha_adguard::enable_dnssec: true
 ha_adguard::enable_filtering: true
 
 ha_adguard::ha_enabled: false
-ha_adguard::ha_role: 'primary'
+ha_adguard::ha_role: 'replica'
 ha_adguard::cluster_nodes: []
 
 ha_adguard::keepalived_enabled: false
-ha_adguard::vrrp_priority: 100
 ha_adguard::vrrp_router_id: 51
 ha_adguard::vrrp_auth_pass: 'changeme'
 ha_adguard::vrrp_interface: 'eth0'

@@ -29,13 +29,18 @@ namespace :acceptance do
     cluster: 'ha-cluster-docker'
   }.each do |name, nodeset|
     desc "Run acceptance tests on #{nodeset}"
-    RSpec::Core::RakeTask.new(name) do |t|
+    RSpec::Core::RakeTask.new(name => 'fixtures:prep') do |t|
       t.pattern = if name == :cluster
                     'spec/acceptance/02_ha_cluster_spec.rb'
                   else
                     'spec/acceptance'
                   end
       ENV['BEAKER_set'] = nodeset
+      # Set DOCKER_IN_DOCKER only if we're already in a container (dev container, CI, etc.)
+      # and the variable isn't already set
+      if ENV['DOCKER_IN_DOCKER'].nil? && (File.exist?('/.dockerenv') || File.exist?('/run/.containerenv'))
+        ENV['DOCKER_IN_DOCKER'] = '1'
+      end
     end
   end
 
@@ -45,6 +50,3 @@ end
 
 desc 'Run acceptance tests (Debian 12 by default)'
 task acceptance: 'acceptance:debian'
-
-
-task :beaker => "fixtures:prep"
