@@ -82,7 +82,7 @@ describe 'ha_adguard::keepalived' do
         it do
           is_expected.to contain_keepalived__vrrp__instance('VI_ADGUARD').with(
             interface: 'eth0',
-            state: 'MASTER',
+            state: 'BACKUP',
             virtual_router_id: 51,
             priority: 150,
             auth_type: 'PASS',
