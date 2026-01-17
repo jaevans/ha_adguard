@@ -83,10 +83,10 @@ Test fixtures are defined in [.fixtures.yml](.fixtures.yml) and include all modu
 
 ```bash
 # Set up test fixtures
-bundle exec rake spec_prep
+bundle exec rake fixtures:prep
 
 # Clean test fixtures
-bundle exec rake spec_clean
+bundle exec rake fixtures:clean
 ```
 
 ## Acceptance Tests
