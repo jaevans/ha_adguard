@@ -42,7 +42,7 @@ jobs:
     needs: authorize
     steps:
       - name: Checkout repository (safe for pull_request_target)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           # SECURITY: Always checkout the base branch for pull_request_target
           # to prevent malicious code execution. Tests will still apply the PR
@@ -84,7 +84,7 @@ jobs:
     needs: authorize
     steps:
       - name: Checkout repository (safe for pull_request_target)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: >-
             ${{
@@ -123,7 +123,7 @@ jobs:
     needs: authorize
     steps:
       - name: Checkout repository (safe for pull_request_target)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: >-
             ${{
