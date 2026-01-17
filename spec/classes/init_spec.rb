@@ -107,43 +107,6 @@ describe 'ha_adguard' do
         it { is_expected.not_to contain_service('adguardhome-sync') }
       end
 
-      # Issue #3: Priority validation warnings
-      context 'with primary node having low priority' do
-        let(:params) do
-          {
-            ha_enabled: true,
-            ha_role: 'primary',
-            keepalived_enabled: true,
-            vip_address: '192.168.1.100',
-            vrrp_priority: 100,
-          }
-        end
-
-        it { is_expected.to compile.with_all_deps }
-        it 'generates warning about low priority' do
-          expect(Puppet).to receive(:warning).with(%r{Primary node should have vrrp_priority > 100})
-          subject.call
-        end
-      end
-
-      context 'with replica node having high priority' do
-        let(:params) do
-          {
-            ha_enabled: true,
-            ha_role: 'replica',
-            keepalived_enabled: true,
-            vip_address: '192.168.1.100',
-            vrrp_priority: 150,
-          }
-        end
-
-        it { is_expected.to compile.with_all_deps }
-        it 'generates warning about high priority' do
-          expect(Puppet).to receive(:warning).with(%r{Replica node should have vrrp_priority < 150})
-          subject.call
-        end
-      end
-
       context 'with firewall management enabled' do
         let(:params) { { manage_firewall: true } }
 

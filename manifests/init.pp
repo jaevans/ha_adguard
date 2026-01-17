@@ -212,13 +212,13 @@ class ha_adguard (
 
   # High Availability configuration
   Boolean $ha_enabled = false,
-  Enum['primary', 'replica'] $ha_role = 'primary',
+  Enum['primary', 'replica'] $ha_role = 'replica',
   Array[String[1]] $cluster_nodes = [],
 
   # Keepalived configuration
   Boolean $keepalived_enabled = false,
   Optional[Stdlib::IP::Address] $vip_address = undef,
-  Integer[0,255] $vrrp_priority = 100,
+  Integer[0,255] $vrrp_priority = $ha_role ? { 'primary' => 150, 'replica' => 100 },
   Integer[1,255] $vrrp_router_id = 51,
   String[1] $vrrp_auth_pass = 'changeme',
   String[1] $vrrp_interface = 'eth0',
@@ -262,14 +262,6 @@ class ha_adguard (
 
   if $sync_enabled and !$sync_origin_url and $ha_role == 'replica' {
     fail('sync_origin_url is required when sync_enabled is true on replica nodes')
-  }
-
-  if $keepalived_enabled and $ha_role == 'primary' and $vrrp_priority <= 100 {
-    warning('Primary node should have vrrp_priority > 100 (e.g., 150) to ensure automatic failback. Replica should use lower priority (e.g., 100).')
-  }
-
-  if $keepalived_enabled and $ha_role == 'replica' and $vrrp_priority >= 150 {
-    warning('Replica node should have vrrp_priority < 150 (e.g., 100) to allow primary to reclaim VIP. Primary should use higher priority (e.g., 150).')
   }
 
   # Contain all classes and set dependencies

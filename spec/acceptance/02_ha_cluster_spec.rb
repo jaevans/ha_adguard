@@ -374,7 +374,11 @@ describe 'ha_adguard HA cluster' do
     end
 
     describe 'VIP failover and failback' do
-      before(:each) do
+      before do
+        # Ensure keepalived services are running before each scenario
+        on(primary_host, 'systemctl start keepalived')
+        on(replica_host, 'systemctl start keepalived')
+
         # Wait for services to stabilize
         wait_for_service(primary_host, 'keepalived', 60)
         wait_for_service(replica_host, 'keepalived', 60)

@@ -213,3 +213,6 @@ describe 'ha_adguard::keepalived' do
           )
         end
       end
+    end
+  end
+end

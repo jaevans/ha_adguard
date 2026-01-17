@@ -63,11 +63,43 @@ describe 'ha_adguard::install' do
         end
       end
 
-      context 'with sync enabled' do
+      context 'with sync enabled on primary' do
         let(:pre_condition) do
           <<-PUPPET
           class { 'ha_adguard':
+            ha_role      => 'primary',
             sync_enabled => true,
+          }
+          PUPPET
+        end
+
+        it { is_expected.to compile.with_all_deps }
+
+        it do
+          is_expected.to contain_archive('/tmp/adguardhome-sync.tar.gz').with(
+            ensure: 'present',
+            creates: '/tmp/adguardhome-sync',
+            cleanup: true
+          )
+        end
+
+        it do
+          is_expected.to contain_file('/usr/local/bin/adguardhome-sync').with(
+            ensure: 'file',
+            owner: 'root',
+            group: 'root',
+            mode: '0755'
+          ).that_requires('Archive[/tmp/adguardhome-sync.tar.gz]')
+        end
+      end
+
+      context 'with sync enabled on replica' do
+        let(:pre_condition) do
+          <<-PUPPET
+          class { 'ha_adguard':
+            ha_role         => 'replica',
+            sync_enabled    => true,
+            sync_origin_url => 'http://primary.example.com:3000',
           }
           PUPPET
         end
