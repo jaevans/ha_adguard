@@ -60,7 +60,7 @@ jobs:
           bundler-cache: true
 
       - name: Install dependencies
-        run: bundle install --jobs 4 --retry 3 --with acceptance
+        run: bundle install --jobs 4 --retry 3 --with acceptance --path vendor/bundle
 
       - name: Prepare test fixtures
         run: bundle exec rake spec_prep
@@ -99,7 +99,7 @@ jobs:
           bundler-cache: true
 
       - name: Install dependencies
-        run: bundle install --jobs 4 --retry 3 --with acceptance
+        run: bundle install --jobs 4 --retry 3 --with acceptance --path vendor/bundle
 
       - name: Prepare test fixtures
         run: bundle exec rake spec_prep
@@ -138,7 +138,7 @@ jobs:
           bundler-cache: true
 
       - name: Install dependencies
-        run: bundle install --jobs 4 --retry 3 --with acceptance
+        run: bundle install --jobs 4 --retry 3 --with acceptance --path vendor/bundle
 
       - name: Prepare test fixtures
         run: bundle exec rake spec_prep
