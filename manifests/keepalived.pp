@@ -26,7 +26,7 @@ class ha_adguard::keepalived {
       group   => 'root',
       mode    => '0755',
       content => epp('ha_adguard/health_check.sh.epp', {
-          'dns_port' => $ha_adguard::dns_port,
+        'dns_port' => $ha_adguard::dns_port,
       }),
     }
 
