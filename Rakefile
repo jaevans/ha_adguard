@@ -5,7 +5,7 @@ require 'voxpupuli/acceptance/rake'
 
 PuppetLint.configuration.send('disable_140chars')
 PuppetLint.configuration.send('disable_autoloader_layout')
-PuppetLint.configuration.ignore_paths = ['spec/**/*.pp', 'pkg/**/*.pp', 'examples/**/*.pp']
+PuppetLint.configuration.ignore_paths = ['spec/**/*.pp', 'pkg/**/*.pp', 'examples/**/*.pp', 'vendor/**/*.pp']
 
 desc 'Validate manifests, templates, and ruby files'
 task :validate do
@@ -13,7 +13,7 @@ task :validate do
     sh "puppet parser validate --noop #{manifest}"
   end
   Dir['spec/**/*.rb', 'lib/**/*.rb'].each do |ruby_file|
-    sh "ruby -c #{ruby_file}" unless ruby_file =~ %r{spec/fixtures}
+    sh "ruby -c #{ruby_file}" unless ruby_file =~ %r{spec/fixtures|vendor}
   end
   Dir['templates/**/*.epp'].each do |template|
     sh "puppet epp validate #{template}"
