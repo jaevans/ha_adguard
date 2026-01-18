@@ -1,5 +1,7 @@
 ---
 name: Acceptance Tests
+permissions:
+  contents: read
 
 # Security note: This workflow uses pull_request_target with manual approval
 # for non-collaborators to prevent abuse of CI resources (Docker containers)
