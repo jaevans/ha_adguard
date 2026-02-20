@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'bigdecimal'
 gem 'metadata-json-lint', '~> 5.0'
-gem 'openfact', '~> 5.3.0'
+gem 'openfact', '~> 5.5.0'
 gem 'openvox', ENV['PUPPET_GEM_VERSION'] || '~> 8.0'
 gem 'parallel_tests', '~> 5.5'
 # gem 'puppetlabs_spec_helper', '~> 7.0'
