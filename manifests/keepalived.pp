@@ -57,11 +57,6 @@ class ha_adguard::keepalived {
       default   => 'BACKUP',
     }
 
-    $virtual_ips = $ha_adguard::vip_address_v6 ? {
-      undef   => [$ha_adguard::vip_address],
-      default => [$ha_adguard::vip_address, $ha_adguard::vip_address_v6],
-    }
-
     keepalived::vrrp::instance { 'VI_ADGUARD':
       interface         => $ha_adguard::vrrp_interface,
       state             => $vrrp_state,
@@ -69,8 +64,25 @@ class ha_adguard::keepalived {
       priority          => $ha_adguard::vrrp_priority,
       auth_type         => 'PASS',
       auth_pass         => $ha_adguard::vrrp_auth_pass,
-      virtual_ipaddress => $virtual_ips,
+      virtual_ipaddress => [$ha_adguard::vip_address],
       track_script      => ['check_adguard'],
+    }
+
+    if $ha_adguard::vip_address_v6 {
+      # IPv6 uses VRRPv3 — no authentication, native_ipv6 required
+      keepalived::vrrp::instance { 'VI_ADGUARD6':
+        interface         => $ha_adguard::vrrp_interface,
+        state             => $vrrp_state,
+        virtual_router_id => $ha_adguard::vrrp_router_id,
+        priority          => $ha_adguard::vrrp_priority,
+        native_ipv6       => true,
+        virtual_ipaddress => [$ha_adguard::vip_address_v6],
+        track_script      => ['check_adguard'],
+      }
+
+      keepalived::vrrp::sync_group { 'VG_ADGUARD':
+        group => ['VI_ADGUARD', 'VI_ADGUARD6'],
+      }
     }
   } elsif $ha_adguard::ensure == 'absent' {
     # Remove health check script
