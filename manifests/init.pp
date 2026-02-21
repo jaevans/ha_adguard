@@ -84,6 +84,9 @@
 # @param vip_address
 #   Virtual IP address (required if keepalived_enabled)
 #
+# @param vip_address_v6
+#   IPv6 virtual IP address with prefix length (optional, e.g. fd00:1234:5678:1::10/64)
+#
 # @param vrrp_priority
 #   VRRP priority (higher = preferred master). Primary nodes should use a higher
 #   value (e.g., 150) than replica nodes (e.g., 100) to enable automatic failback.
@@ -218,6 +221,7 @@ class ha_adguard (
   # Keepalived configuration
   Boolean $keepalived_enabled = false,
   Optional[Stdlib::IP::Address] $vip_address = undef,
+  Optional[Stdlib::IP::Address::V6::CIDR] $vip_address_v6 = undef,
   Integer[0,255] $vrrp_priority = $ha_role ? { 'primary' => 150, 'replica' => 100 },
   Integer[1,255] $vrrp_router_id = 51,
   String[1] $vrrp_auth_pass = 'changeme',

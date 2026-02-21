@@ -109,6 +109,7 @@ The following parameters are available in the `ha_adguard` class:
 * [`cluster_nodes`](#-ha_adguard--cluster_nodes)
 * [`keepalived_enabled`](#-ha_adguard--keepalived_enabled)
 * [`vip_address`](#-ha_adguard--vip_address)
+* [`vip_address_v6`](#-ha_adguard--vip_address_v6)
 * [`vrrp_priority`](#-ha_adguard--vrrp_priority)
 * [`vrrp_router_id`](#-ha_adguard--vrrp_router_id)
 * [`vrrp_auth_pass`](#-ha_adguard--vrrp_auth_pass)
@@ -313,6 +314,14 @@ Default value: `false`
 Data type: `Optional[Stdlib::IP::Address]`
 
 Virtual IP address (required if keepalived_enabled)
+
+Default value: `undef`
+
+##### <a name="-ha_adguard--vip_address_v6"></a>`vip_address_v6`
+
+Data type: `Optional[Stdlib::IP::Address::V6::CIDR]`
+
+IPv6 virtual IP address with prefix length (optional, e.g. fd00:1234:5678:1::10/64)
 
 Default value: `undef`
 

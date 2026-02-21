@@ -38,6 +38,7 @@ class { 'ha_adguard':
   # Keepalived VIP configuration
   keepalived_enabled => true,
   vip_address        => '192.168.1.100',        # Floating IP for DNS service
+  vip_address_v6     => 'fd00:1234:5678:1::10/64',  # IPv6 VIP (optional)
   vip_interface      => 'eth0',
   vrrp_priority      => 150,                     # Higher priority = master
   vrrp_router_id     => 51,

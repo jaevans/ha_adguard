@@ -39,6 +39,7 @@ class { 'ha_adguard':
   # Keepalived VIP configuration
   keepalived_enabled => true,
   vip_address        => '192.168.1.100',        # Same VIP as primary
+  vip_address_v6     => 'fd00:1234:5678:1::10/64',  # IPv6 VIP (optional)
   vip_interface      => 'eth0',
   vrrp_priority      => 100,                     # Lower priority = backup
   vrrp_router_id     => 51,                      # Same router ID as primary

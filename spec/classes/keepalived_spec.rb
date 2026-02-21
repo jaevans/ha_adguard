@@ -93,6 +93,30 @@ describe 'ha_adguard::keepalived' do
         end
       end
 
+      context 'with IPv6 VIP address' do
+        let(:pre_condition) do
+          <<-PUPPET
+          class { 'ha_adguard':
+            keepalived_enabled => true,
+            vip_address        => '192.168.1.100',
+            vip_address_v6     => 'fd00:1234:5678:1::10/64',
+            vrrp_priority      => 150,
+            vrrp_router_id     => 51,
+            vrrp_auth_pass     => 'supersecret',
+            vrrp_interface     => 'eth0',
+          }
+          PUPPET
+        end
+
+        it { is_expected.to compile.with_all_deps }
+
+        it do
+          is_expected.to contain_keepalived__vrrp__instance('VI_ADGUARD').with(
+            virtual_ipaddress: ['192.168.1.100', 'fd00:1234:5678:1::10/64']
+          )
+        end
+      end
+
       context 'with custom health check interval' do
         let(:pre_condition) do
           <<-PUPPET
