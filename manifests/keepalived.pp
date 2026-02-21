@@ -57,6 +57,11 @@ class ha_adguard::keepalived {
       default   => 'BACKUP',
     }
 
+    $virtual_ips = $ha_adguard::vip_address_v6 ? {
+      undef   => [$ha_adguard::vip_address],
+      default => [$ha_adguard::vip_address, $ha_adguard::vip_address_v6],
+    }
+
     keepalived::vrrp::instance { 'VI_ADGUARD':
       interface         => $ha_adguard::vrrp_interface,
       state             => $vrrp_state,
@@ -64,7 +69,7 @@ class ha_adguard::keepalived {
       priority          => $ha_adguard::vrrp_priority,
       auth_type         => 'PASS',
       auth_pass         => $ha_adguard::vrrp_auth_pass,
-      virtual_ipaddress => [$ha_adguard::vip_address],
+      virtual_ipaddress => $virtual_ips,
       track_script      => ['check_adguard'],
     }
   } elsif $ha_adguard::ensure == 'absent' {
