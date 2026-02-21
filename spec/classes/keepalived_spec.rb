@@ -110,9 +110,22 @@ describe 'ha_adguard::keepalived' do
 
         it { is_expected.to compile.with_all_deps }
 
-        it do
+        it 'creates IPv4 VRRP instance with only IPv4 address' do
           is_expected.to contain_keepalived__vrrp__instance('VI_ADGUARD').with(
-            virtual_ipaddress: ['192.168.1.100', 'fd00:1234:5678:1::10/64']
+            virtual_ipaddress: ['192.168.1.100']
+          )
+        end
+
+        it 'creates IPv6 VRRP instance with native_ipv6 and no auth' do
+          is_expected.to contain_keepalived__vrrp__instance('VI_ADGUARD6').with(
+            native_ipv6:       true,
+            virtual_ipaddress: ['fd00:1234:5678:1::10/64']
+          )
+        end
+
+        it 'creates a sync group for both instances' do
+          is_expected.to contain_keepalived__vrrp__sync_group('VG_ADGUARD').with(
+            group: %w[VI_ADGUARD VI_ADGUARD6]
           )
         end
       end
