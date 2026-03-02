@@ -160,6 +160,58 @@ Both primary and replica nodes use `state => 'BACKUP'` in VRRP configuration to 
 ### Why Sync is Replica-Only
 Running sync on primary nodes would create circular sync loops. Primary is always the source of truth; replicas pull configuration from primary.
 
+### IPv6 and Dual-Stack Configuration
+
+The module supports pure IPv4, pure IPv6, and dual-stack (IPv4+IPv6) VIP failover configurations. This requires special handling in Keepalived due to VRRP version differences:
+
+**VRRP Version Differences:**
+- **VRRPv2** (IPv4): Uses PASS authentication for security
+- **VRRPv3** (IPv6): Required for IPv6 but does NOT support authentication
+
+**Dual-Stack Implementation Pattern** (in keepalived.pp):
+When `vip_address_v6` is defined:
+1. Create separate VRRP instances for IPv4 and IPv6:
+   - `VI_ADGUARD` - IPv4 instance WITHOUT auth_type/auth_pass
+   - `VI_ADGUARD6` - IPv6 instance with native_ipv6 => true
+2. Create a SYNC group (`VG_ADGUARD`) containing both instances
+3. Attach the health check script ONLY to the SYNC group (not individual instances)
+   - KV constraint: Script tracking must be on SYNC group when multiple instances exist
+4. Omit authentication for both instances (VRRPv3 requirement)
+
+**IPv4-Only Implementation Pattern:**
+When IPv6 is NOT enabled (no `vip_address_v6`):
+1. Create single `VI_ADGUARD` instance with:
+   - auth_type => 'PASS'
+   - auth_pass => configured value
+   - track_script => on the instance directly
+
+**Parameter Requirements:**
+- `vip_address` - IPv4 VIP (required for HA, Stdlib::IP::Address format)
+- `vip_address_v6` - IPv6 VIP (optional, Stdlib::IP::Address::V6::CIDR format with /prefix)
+  - Example: `fd00::101/128` (CIDR notation required, not just the address)
+- `vrrp_interface` - Same interface used for both IPv4 and IPv6
+- `vrrp_router_id` - Same router ID used for both VRRP instances (defines VRRP group membership)
+- `vrrp_priority` - Higher value becomes MASTER; Primary typically uses 150, Replica uses 100
+
+**Test Configuration Example:**
+```ruby
+class { 'ha_adguard':
+  keepalived_enabled => true,
+  vip_address        => '192.168.255.101',        # IPv4 VIP
+  vip_address_v6     => 'fd00::101/128',          # IPv6 VIP (CIDR required)
+  vrrp_interface     => 'eth0',
+  vrrp_router_id     => 52,
+  vrrp_priority      => 150,
+  # NOTE: vrrp_auth_pass is automatically omitted when vip_address_v6 is defined
+}
+```
+
+**Acceptance Test Helpers** (spec_helper_acceptance.rb):
+Three IPv6-specific helper functions added:
+- `get_host_ipv6()` - Retrieves IPv6 addresses from test hosts
+- `test_dns_query_ipv6(host, ::1, domain)` - Tests DNS over IPv6 loopback
+- `test_web_interface_ipv6(host, port)` - Tests web UI accessibility over IPv6
+
 ### Template Reduction
 Originally planned 6 templates; reduced to 4 by using puppet/keepalived module:
 - ✅ adguardhome.service.epp
