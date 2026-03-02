@@ -284,7 +284,8 @@ describe 'ha_adguard single node installation' do
 
     describe 'service is stopped and disabled' do
       it 'adguardhome service is not running' do
-        on(default, 'systemctl is-active adguardhome', acceptable_exit_codes: [3])
+        # systemctl returns exit code 3 if service is not running, 4 if service is not found
+        on(default, 'systemctl is-active adguardhome', acceptable_exit_codes: [3, 4])
       end
     end
 

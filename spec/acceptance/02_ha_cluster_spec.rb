@@ -82,7 +82,7 @@ describe 'ha_adguard HA cluster' do
 
       # Sync should NOT run on primary
       it 'does not have sync service enabled' do
-        on(primary_host, 'systemctl is-enabled adguardhome-sync', acceptable_exit_codes: [1])
+        on(primary_host, 'systemctl is-enabled adguardhome-sync', acceptable_exit_codes: [1, 4])
       end
     end
 
@@ -331,7 +331,7 @@ describe 'ha_adguard HA cluster' do
       # Issue #1: Config replication only works on replica
       it 'sync service only runs on replica, not on primary' do
         on(replica_host, 'systemctl is-active adguardhome-sync')
-        on(primary_host, 'systemctl is-enabled adguardhome-sync', acceptable_exit_codes: [1])
+        on(primary_host, 'systemctl is-enabled adguardhome-sync', acceptable_exit_codes: [1, 4])
       end
 
       it 'sync config only exists on replica' do
@@ -432,7 +432,7 @@ describe 'ha_adguard HA cluster' do
 
     describe 'primary cleanup' do
       it 'adguardhome service is not running' do
-        on(primary_host, 'systemctl is-active adguardhome', acceptable_exit_codes: [3])
+        on(primary_host, 'systemctl is-active adguardhome', acceptable_exit_codes: [3, 4])
       end
 
       it 'AdGuardHome directory does not exist' do
@@ -442,11 +442,11 @@ describe 'ha_adguard HA cluster' do
 
     describe 'replica cleanup' do
       it 'adguardhome service is not running' do
-        on(replica_host, 'systemctl is-active adguardhome', acceptable_exit_codes: [3])
+        on(replica_host, 'systemctl is-active adguardhome', acceptable_exit_codes: [3, 4])
       end
 
       it 'adguardhome-sync service is not running' do
-        on(replica_host, 'systemctl is-active adguardhome-sync', acceptable_exit_codes: [3])
+        on(replica_host, 'systemctl is-active adguardhome-sync', acceptable_exit_codes: [3, 4])
       end
 
       it 'AdGuardHome directory does not exist' do

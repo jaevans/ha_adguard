@@ -22,7 +22,7 @@ Runs Beaker acceptance tests using Docker containers.
 
 **Jobs:**
 - `authorize`: Security gate for non-collaborator PRs
-- `acceptance-debian`: Tests on Debian 12
+- `acceptance-debian`: Tests on Debian 13
 - `acceptance-rocky`: Tests on Rocky Linux 9
 - `acceptance-cluster`: Tests HA cluster configuration
 

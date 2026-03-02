@@ -121,7 +121,7 @@ bundle install --with acceptance
 #### Quick Start
 
 ```bash
-# Run single-node tests on Debian 12 (fastest, recommended for development)
+# Run single-node tests on Debian 13 (fastest, recommended for development)
 bundle exec rake acceptance
 
 # Run all acceptance tests on all platforms (comprehensive)
@@ -131,15 +131,15 @@ bundle exec rake acceptance:all
 #### Platform-Specific Tests
 
 ```bash
-# Debian 12 single-node
+# Debian 13 single-node
 bundle exec rake acceptance:debian
-BEAKER_set=debian12-docker bundle exec rspec spec/acceptance
+BEAKER_set=debian13-docker bundle exec rspec spec/acceptance
 
 # Rocky Linux 9 single-node
 bundle exec rake acceptance:rocky
 BEAKER_set=rocky9-docker bundle exec rspec spec/acceptance
 
-# HA cluster (Debian 12 + Rocky 9)
+# HA cluster (Debian 13 + Rocky 9)
 bundle exec rake acceptance:cluster
 BEAKER_set=ha-cluster-docker bundle exec rspec spec/acceptance/02_ha_cluster_spec.rb
 ```
@@ -148,7 +148,7 @@ BEAKER_set=ha-cluster-docker bundle exec rspec spec/acceptance/02_ha_cluster_spe
 
 ```bash
 # Single-node installation tests only
-BEAKER_set=debian12-docker bundle exec rspec spec/acceptance/01_single_node_spec.rb
+BEAKER_set=debian13-docker bundle exec rspec spec/acceptance/01_single_node_spec.rb
 
 # HA cluster tests only
 BEAKER_set=ha-cluster-docker bundle exec rspec spec/acceptance/02_ha_cluster_spec.rb
@@ -160,9 +160,9 @@ Nodesets define the test environment configuration:
 
 | Nodeset | File | Description | Use Case |
 |---------|------|-------------|----------|
-| **debian12-docker** | [spec/acceptance/nodesets/debian12-docker.yml](spec/acceptance/nodesets/debian12-docker.yml) | Single Debian 12 node | Quick single-node testing |
+| **debian13-docker** | [spec/acceptance/nodesets/debian13-docker.yml](spec/acceptance/nodesets/debian13-docker.yml) | Single Debian 13 node | Quick single-node testing |
 | **rocky9-docker** | [spec/acceptance/nodesets/rocky9-docker.yml](spec/acceptance/nodesets/rocky9-docker.yml) | Single Rocky 9 node | RedHat family testing |
-| **ha-cluster-docker** | [spec/acceptance/nodesets/ha-cluster-docker.yml](spec/acceptance/nodesets/ha-cluster-docker.yml) | Debian 12 + Rocky 9 cluster | HA cluster testing |
+| **ha-cluster-docker** | [spec/acceptance/nodesets/ha-cluster-docker.yml](spec/acceptance/nodesets/ha-cluster-docker.yml) | Debian 13 + Rocky 9 cluster | HA cluster testing |
 
 ### Acceptance Test Coverage
 
@@ -221,7 +221,7 @@ Nodesets define the test environment configuration:
 By default, Beaker destroys containers after tests. To keep them for debugging:
 
 ```bash
-BEAKER_destroy=no BEAKER_set=debian12-docker bundle exec rspec spec/acceptance
+BEAKER_destroy=no BEAKER_set=debian13-docker bundle exec rspec spec/acceptance
 ```
 
 #### Access Running Container
@@ -251,10 +251,10 @@ cat log/latest/beaker_*.log
 
 ```bash
 # Run only the "with default parameters" context
-BEAKER_set=debian12-docker bundle exec rspec spec/acceptance/01_single_node_spec.rb -e "with default parameters"
+BEAKER_set=debian13-docker bundle exec rspec spec/acceptance/01_single_node_spec.rb -e "with default parameters"
 
 # Run only removal tests
-BEAKER_set=debian12-docker bundle exec rspec spec/acceptance/01_single_node_spec.rb -e "ensure => absent"
+BEAKER_set=debian13-docker bundle exec rspec spec/acceptance/01_single_node_spec.rb -e "ensure => absent"
 ```
 
 ### Test Execution Time
@@ -268,7 +268,7 @@ Approximate execution times on a modern development machine:
 | HA cluster acceptance | 10-15 minutes |
 | All acceptance tests | 25-35 minutes |
 
-**Tip:** Use `debian12-docker` for fastest feedback during development.
+**Tip:** Use `debian13-docker` for fastest feedback during development.
 
 ## Continuous Integration
 
@@ -282,7 +282,7 @@ This module includes automated testing workflows in `.github/workflows/`:
 - Duration: ~30-35 minutes
 
 **Acceptance Tests** (`acceptance-tests.yml`):
-- Runs Beaker tests on Debian 12, Rocky 9, and HA cluster
+- Runs Beaker tests on Debian 13, Rocky 9, and HA cluster
 - Uses Docker containers for isolation
 - Includes security controls for non-collaborator PRs
 - Duration: ~25-35 minutes (parallel execution)
@@ -373,7 +373,7 @@ If you encounter issues:
 2. **Run acceptance tests** for changed components: `bundle exec rake acceptance`
 3. **Maintain idempotency** - all manifests should be idempotent
 4. **Add tests for new features** - both unit and acceptance
-5. **Keep tests fast** - use Debian 12 nodeset for quick iteration
+5. **Keep tests fast** - use Debian 13 nodeset for quick iteration
 6. **Clean up** - ensure proper resource removal in `ensure => absent` scenarios
 
 ### For Module Users
