@@ -3,7 +3,7 @@
 {
 	"name": "Ruby",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/ruby:3.3-trixie",
+	"image": "mcr.microsoft.com/devcontainers/ruby:3.4-trixie",
 	"features": {
 		"ghcr.io/stuartleeks/dev-container-features/shell-history:0": {},
 		"ghcr.io/devcontainer-community/devcontainer-features/starship.rs:1": {},
