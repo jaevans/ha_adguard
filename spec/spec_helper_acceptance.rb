@@ -82,9 +82,16 @@ def apply_manifest_with_debug(manifest, opts = {})
   apply_manifest_on(host, manifest, opts)
 end
 
-# Helper to get host IP address
+# Helper to get host IP address (IPv4)
 def get_host_ip(host)
   on(host, "hostname -I | awk '{print $1}'").stdout.strip
+end
+
+# Helper to get host IPv6 address
+def get_host_ipv6(host)
+  # Get the first global IPv6 address (not link-local)
+  result = on(host, "ip -6 addr show scope global | grep -oP '(?<=inet6\\s)\\K[0-9a-f:]+' | head -1", acceptable_exit_codes: [0, 1])
+  result.stdout.strip
 end
 
 # Helper to wait for service to be running
@@ -122,7 +129,17 @@ def test_dns_query(host, dns_server = '127.0.0.1', query = 'example.com')
   on(host, "dig @#{dns_server} #{query} +short +time=5", acceptable_exit_codes: [0])
 end
 
+# Helper to test DNS query over IPv6
+def test_dns_query_ipv6(host, dns_server = '::1', query = 'example.com')
+  on(host, "dig @#{dns_server} -6 #{query} +short +time=5", acceptable_exit_codes: [0])
+end
+
 # Helper to test web interface
 def test_web_interface(host, port = 3000)
   on(host, "curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:#{port}/", acceptable_exit_codes: [0])
+end
+
+# Helper to test web interface over IPv6
+def test_web_interface_ipv6(host, port = 3000)
+  on(host, "curl -s -o /dev/null -w '%{http_code}' http://[::1]:#{port}/", acceptable_exit_codes: [0])
 end

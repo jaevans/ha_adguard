@@ -1,18 +1,18 @@
 ---
 # Two-node HA cluster nodeset for testing high-availability features
-# Primary node (Debian 12) + Replica node (Debian 12) for consistent testing
+# Primary node (Debian 13) + Replica node (Debian 13) for consistent testing
 
 HOSTS:
   primary:
-    platform: debian-12-arm64
+    platform: debian-13-arm64
     hypervisor: docker
-    image: debian:12
+    image: debian:13
     docker_preserve_image: true
     docker_cmd: '["/sbin/init"]'
     docker_image_commands:
       - 'apt-get update && apt-get install -y systemd systemd-sysv wget gnupg lsb-release ca-certificates iproute2 procps dnsutils iputils-ping curl net-tools'
-      - 'wget https://apt.voxpupuli.org/openvox8-release-debian12.deb'
-      - 'dpkg -i openvox8-release-debian12.deb'
+      - 'wget https://apt.voxpupuli.org/openvox8-release-debian13.deb'
+      - 'dpkg -i openvox8-release-debian13.deb'
       - 'apt-get update && apt-get install -y openvox-agent'
       - 'ln -sf /opt/puppetlabs/bin/puppet /usr/bin/puppet'
     roles:
@@ -20,15 +20,15 @@ HOSTS:
       - primary
 
   replica:
-    platform: debian-12-arm64
+    platform: debian-13-arm64
     hypervisor: docker
-    image: debian:12
+    image: debian:13
     docker_preserve_image: true
     docker_cmd: '["/sbin/init"]'
     docker_image_commands:
       - 'apt-get update && apt-get install -y systemd systemd-sysv wget gnupg lsb-release ca-certificates iproute2 procps dnsutils iputils-ping curl net-tools'
-      - 'wget https://apt.voxpupuli.org/openvox8-release-debian12.deb'
-      - 'dpkg -i openvox8-release-debian12.deb'
+      - 'wget https://apt.voxpupuli.org/openvox8-release-debian13.deb'
+      - 'dpkg -i openvox8-release-debian13.deb'
       - 'apt-get update && apt-get install -y openvox-agent'
       - 'ln -sf /opt/puppetlabs/bin/puppet /usr/bin/puppet'
     roles:

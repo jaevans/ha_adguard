@@ -350,13 +350,14 @@ Acceptance tests use Beaker with Docker to test the module on real systems. You'
 # Install acceptance test dependencies
 bundle install --with acceptance
 
-# Run acceptance tests on Debian 12 (default)
+# Run acceptance tests on Debian 13 (default)
 bundle exec rake acceptance
 
 # Run acceptance tests on specific platforms
-bundle exec rake acceptance:debian   # Debian 12
+bundle exec rake acceptance:debian12   # Debian 12
+bundle exec rake acceptance:debian13   # Debian 13
 bundle exec rake acceptance:rocky    # Rocky Linux 9
-bundle exec rake acceptance:cluster  # HA cluster (Debian 12 + Rocky 9)
+bundle exec rake acceptance:cluster  # HA cluster (Debian 13 + Rocky 9)
 
 # Run all acceptance tests on all platforms
 bundle exec rake acceptance:all
@@ -364,8 +365,9 @@ bundle exec rake acceptance:all
 
 **Available nodesets:**
 - `debian12-docker.yml` - Single Debian 12 node
+- `debian13-docker.yml` - Single Debian 13 node
 - `rocky9-docker.yml` - Single Rocky Linux 9 node
-- `ha-cluster-docker.yml` - Two-node HA cluster (Debian 12 primary + Rocky 9 replica)
+- `ha-cluster-docker.yml` - Two-node HA cluster (Debian 13 primary + Rocky 9 replica)
 
 **Acceptance test coverage:**
 - Single-node installation with default parameters
@@ -383,13 +385,13 @@ bundle exec rake acceptance:all
 
 ```bash
 # Run only single-node tests
-BEAKER_set=debian12-docker bundle exec rspec spec/acceptance/01_single_node_spec.rb
+BEAKER_set=debian13-docker bundle exec rspec spec/acceptance/01_single_node_spec.rb
 
 # Run only HA cluster tests
 BEAKER_set=ha-cluster-docker bundle exec rspec spec/acceptance/02_ha_cluster_spec.rb
 
 # Keep containers after tests for debugging
-BEAKER_destroy=no BEAKER_set=debian12-docker bundle exec rspec spec/acceptance
+BEAKER_destroy=no BEAKER_set=debian13-docker bundle exec rspec spec/acceptance
 ```
 
 ### Contributing

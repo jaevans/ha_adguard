@@ -82,7 +82,7 @@ describe 'ha_adguard HA cluster' do
 
       # Sync should NOT run on primary
       it 'does not have sync service enabled' do
-        on(primary_host, 'systemctl is-enabled adguardhome-sync', acceptable_exit_codes: [1])
+        on(primary_host, 'systemctl is-enabled adguardhome-sync', acceptable_exit_codes: [1, 4])
       end
     end
 
@@ -331,7 +331,7 @@ describe 'ha_adguard HA cluster' do
       # Issue #1: Config replication only works on replica
       it 'sync service only runs on replica, not on primary' do
         on(replica_host, 'systemctl is-active adguardhome-sync')
-        on(primary_host, 'systemctl is-enabled adguardhome-sync', acceptable_exit_codes: [1])
+        on(primary_host, 'systemctl is-enabled adguardhome-sync', acceptable_exit_codes: [1, 4])
       end
 
       it 'sync config only exists on replica' do
@@ -413,6 +413,220 @@ describe 'ha_adguard HA cluster' do
     end
   end
 
+  context 'IPv6 cluster configuration' do
+    # Dual-stack IPs for failover testing
+    let(:dual_stack_vip) { '192.168.255.101' }
+    let(:dual_stack_vip_ipv6) { 'fd00::101/128' }
+
+    context 'IPv6 primary node configuration' do
+      let(:pp) do
+        <<-MANIFEST
+          class { 'ha_adguard':
+            ensure             => present,
+            ha_enabled         => true,
+            ha_role            => 'primary',
+            keepalived_enabled => true,
+            vip_address        => '#{dual_stack_vip}',
+            vip_address_v6     => '#{dual_stack_vip_ipv6}',
+            vrrp_interface     => 'eth0',
+            vrrp_priority      => 150,
+            vrrp_router_id     => 52,
+            vrrp_auth_pass     => 'testpass_ipv6',
+            cluster_nodes      => ['#{primary_ip}', '#{replica_ip}'],
+            sync_username      => 'admin',
+            sync_password      => Sensitive('admin_password'),
+            bind_host          => '::',
+            bind_port          => 3000,
+            dns_port           => 53,
+          }
+        MANIFEST
+      end
+
+      it 'applies on primary without errors' do
+        # Clean up previous test configs
+        on(primary_host, 'rm -f /etc/adguardhome/AdGuardHome.yaml')
+        apply_manifest_on(primary_host, pp, catch_failures: true)
+      end
+
+      it 'is idempotent on primary' do
+        apply_manifest_on(primary_host, pp, catch_changes: true)
+      end
+
+      describe 'IPv6 primary keepalived configuration' do
+        it 'has keepalived.conf file' do
+          on(primary_host, 'test -f /etc/keepalived/keepalived.conf')
+        end
+
+        it 'has correct virtual_router_id' do
+          result = on(primary_host, 'grep -E "virtual_router_id\\s+52" /etc/keepalived/keepalived.conf')
+          expect(result.exit_code).to eq(0)
+        end
+
+        it 'has correct IPv4 VIP address' do
+          result = on(primary_host, "grep '#{dual_stack_vip}' /etc/keepalived/keepalived.conf")
+          expect(result.exit_code).to eq(0)
+        end
+
+        it 'has correct IPv6 VIP address' do
+          result = on(primary_host, "grep '#{dual_stack_vip_ipv6}' /etc/keepalived/keepalived.conf")
+          expect(result.exit_code).to eq(0)
+        end
+
+        it 'has correct priority' do
+          result = on(primary_host, 'grep -E "priority\\s+150" /etc/keepalived/keepalived.conf')
+          expect(result.exit_code).to eq(0)
+        end
+      end
+
+      describe 'IPv6 primary functional tests' do
+        it 'DNS service is running' do
+          wait_for_service(primary_host, 'adguardhome', 90)
+          wait_for_port(primary_host, 53, 90)
+        end
+
+        it 'Web interface is accessible' do
+          wait_for_port(primary_host, 3000, 90)
+        end
+
+        it 'Keepalived is running' do
+          wait_for_service(primary_host, 'keepalived', 60)
+        end
+      end
+    end
+
+    context 'IPv6 replica node configuration' do
+      let(:pp) do
+        <<-MANIFEST
+          class { 'ha_adguard':
+            ensure             => present,
+            ha_enabled         => true,
+            ha_role            => 'replica',
+            keepalived_enabled => true,
+            vip_address        => '#{dual_stack_vip}',
+            vip_address_v6     => '#{dual_stack_vip_ipv6}',
+            vrrp_interface     => 'eth0',
+            vrrp_priority      => 100,
+            vrrp_router_id     => 52,
+            vrrp_auth_pass     => 'testpass_ipv6',
+            cluster_nodes      => ['#{primary_ip}', '#{replica_ip}'],
+            sync_enabled       => true,
+            sync_origin_url    => 'http://#{primary_ip}:3000',
+            sync_username      => 'admin',
+            sync_password      => Sensitive('admin_password'),
+            sync_interval      => 600,
+            bind_host          => '::',
+            bind_port          => 3000,
+            dns_port           => 53,
+          }
+        MANIFEST
+      end
+
+      it 'applies on replica without errors' do
+        # Clean up previous test configs
+        on(replica_host, 'rm -f /etc/adguardhome/AdGuardHome.yaml')
+        sleep 10
+        apply_manifest_on(replica_host, pp, catch_failures: true)
+      end
+
+      it 'is idempotent on replica' do
+        apply_manifest_on(replica_host, pp, catch_changes: true)
+      end
+
+      describe 'IPv6 replica keepalived configuration' do
+        it 'has keepalived.conf file' do
+          on(replica_host, 'test -f /etc/keepalived/keepalived.conf')
+        end
+
+        it 'has correct virtual_router_id' do
+          result = on(replica_host, 'grep -E "virtual_router_id\\s+52" /etc/keepalived/keepalived.conf')
+          expect(result.exit_code).to eq(0)
+        end
+
+        it 'has correct IPv4 VIP address' do
+          result = on(replica_host, "grep '#{dual_stack_vip}' /etc/keepalived/keepalived.conf")
+          expect(result.exit_code).to eq(0)
+        end
+
+        it 'has correct IPv6 VIP address' do
+          result = on(replica_host, "grep '#{dual_stack_vip_ipv6}' /etc/keepalived/keepalived.conf")
+          expect(result.exit_code).to eq(0)
+        end
+
+        it 'has correct priority' do
+          result = on(replica_host, 'grep -E "priority\\s+100" /etc/keepalived/keepalived.conf')
+          expect(result.exit_code).to eq(0)
+        end
+      end
+
+      describe 'IPv6 replica sync configuration' do
+        it 'has sync config.yaml file' do
+          on(replica_host, 'test -f /etc/adguardhome-sync/config.yaml')
+        end
+
+        it 'sync config has correct mode' do
+          result = on(replica_host, 'stat -c "%a" /etc/adguardhome-sync/config.yaml')
+          expect(result.stdout.strip).to eq('600')
+        end
+
+        it 'sync config contains origin URL' do
+          result = on(replica_host, "grep '#{primary_ip}:3000' /etc/adguardhome-sync/config.yaml")
+          expect(result.exit_code).to eq(0)
+        end
+      end
+
+      describe 'IPv6 replica functional tests' do
+        it 'DNS service is running' do
+          wait_for_service(replica_host, 'adguardhome', 90)
+          wait_for_port(replica_host, 53, 90)
+        end
+
+        it 'Web interface is accessible' do
+          wait_for_port(replica_host, 3000, 90)
+        end
+
+        it 'Keepalived is running' do
+          wait_for_service(replica_host, 'keepalived', 60)
+        end
+
+        it 'Sync service is running' do
+          wait_for_service(replica_host, 'adguardhome-sync', 60)
+        end
+      end
+    end
+
+    context 'IPv6 cluster cleanup' do
+      let(:removal_pp) do
+        <<-MANIFEST
+          class { 'ha_adguard':
+            ensure => absent,
+          }
+        MANIFEST
+      end
+
+      it 'removes HA IPv6 cluster from primary' do
+        apply_manifest_on(primary_host, removal_pp, catch_failures: true)
+      end
+
+      it 'removes HA IPv6 cluster from replica' do
+        apply_manifest_on(replica_host, removal_pp, catch_failures: true)
+      end
+
+      describe 'IPv6 cluster cleanup verification' do
+        it 'primary adguardhome service is not running' do
+          on(primary_host, 'systemctl is-active adguardhome', acceptable_exit_codes: [3, 4])
+        end
+
+        it 'replica adguardhome service is not running' do
+          on(replica_host, 'systemctl is-active adguardhome', acceptable_exit_codes: [3, 4])
+        end
+
+        it 'replica adguardhome-sync service is not running' do
+          on(replica_host, 'systemctl is-active adguardhome-sync', acceptable_exit_codes: [3, 4])
+        end
+      end
+    end
+  end
+
   context 'cluster removal' do
     let(:removal_pp) do
       <<-MANIFEST
@@ -432,7 +646,7 @@ describe 'ha_adguard HA cluster' do
 
     describe 'primary cleanup' do
       it 'adguardhome service is not running' do
-        on(primary_host, 'systemctl is-active adguardhome', acceptable_exit_codes: [3])
+        on(primary_host, 'systemctl is-active adguardhome', acceptable_exit_codes: [3, 4])
       end
 
       it 'AdGuardHome directory does not exist' do
@@ -442,11 +656,11 @@ describe 'ha_adguard HA cluster' do
 
     describe 'replica cleanup' do
       it 'adguardhome service is not running' do
-        on(replica_host, 'systemctl is-active adguardhome', acceptable_exit_codes: [3])
+        on(replica_host, 'systemctl is-active adguardhome', acceptable_exit_codes: [3, 4])
       end
 
       it 'adguardhome-sync service is not running' do
-        on(replica_host, 'systemctl is-active adguardhome-sync', acceptable_exit_codes: [3])
+        on(replica_host, 'systemctl is-active adguardhome-sync', acceptable_exit_codes: [3, 4])
       end
 
       it 'AdGuardHome directory does not exist' do

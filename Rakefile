@@ -24,7 +24,7 @@ end
 # This provides the default 'beaker' task and platform-specific tasks
 namespace :acceptance do
   {
-    debian: 'debian12-docker',
+    debian: 'debian13-docker',
     rocky: 'rocky9-docker',
     cluster: 'ha-cluster-docker'
   }.each do |name, nodeset|
@@ -48,5 +48,5 @@ namespace :acceptance do
   task all: %i[debian rocky cluster]
 end
 
-desc 'Run acceptance tests (Debian 12 by default)'
+desc 'Run acceptance tests (Debian 13 by default)'
 task acceptance: 'acceptance:debian'

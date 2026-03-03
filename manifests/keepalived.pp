@@ -57,19 +57,19 @@ class ha_adguard::keepalived {
       default   => 'BACKUP',
     }
 
-    keepalived::vrrp::instance { 'VI_ADGUARD':
-      interface         => $ha_adguard::vrrp_interface,
-      state             => $vrrp_state,
-      virtual_router_id => $ha_adguard::vrrp_router_id,
-      priority          => $ha_adguard::vrrp_priority,
-      auth_type         => 'PASS',
-      auth_pass         => $ha_adguard::vrrp_auth_pass,
-      virtual_ipaddress => [$ha_adguard::vip_address],
-      track_script      => ['check_adguard'],
-    }
-
     if $ha_adguard::vip_address_v6 {
-      # IPv6 uses VRRPv3 — no authentication, native_ipv6 required
+      # When using SYNC groups with both IPv4 and IPv6:
+      # - track_script must be on the group, not individual instances
+      # - Authentication cannot be used (VRRPv3 for IPv6 doesn't support it)
+      keepalived::vrrp::instance { 'VI_ADGUARD':
+        interface         => $ha_adguard::vrrp_interface,
+        state             => $vrrp_state,
+        virtual_router_id => $ha_adguard::vrrp_router_id,
+        priority          => $ha_adguard::vrrp_priority,
+        virtual_ipaddress => [$ha_adguard::vip_address],
+      }
+
+      # IPv6 uses VRRPv3 — no authentication supported, native_ipv6 required
       keepalived::vrrp::instance { 'VI_ADGUARD6':
         interface         => $ha_adguard::vrrp_interface,
         state             => $vrrp_state,
@@ -77,11 +77,24 @@ class ha_adguard::keepalived {
         priority          => $ha_adguard::vrrp_priority,
         native_ipv6       => true,
         virtual_ipaddress => [$ha_adguard::vip_address_v6],
-        track_script      => ['check_adguard'],
       }
 
+      # SYNC group with script tracking — script must be here, not on instances
       keepalived::vrrp::sync_group { 'VG_ADGUARD':
-        group => ['VI_ADGUARD', 'VI_ADGUARD6'],
+        group        => ['VI_ADGUARD', 'VI_ADGUARD6'],
+        track_script => ['check_adguard'],
+      }
+    } else {
+      # IPv4-only (no SYNC group) — can use authentication, track script directly on instance
+      keepalived::vrrp::instance { 'VI_ADGUARD':
+        interface         => $ha_adguard::vrrp_interface,
+        state             => $vrrp_state,
+        virtual_router_id => $ha_adguard::vrrp_router_id,
+        priority          => $ha_adguard::vrrp_priority,
+        auth_type         => 'PASS',
+        auth_pass         => $ha_adguard::vrrp_auth_pass,
+        virtual_ipaddress => [$ha_adguard::vip_address],
+        track_script      => ['check_adguard'],
       }
     }
   } elsif $ha_adguard::ensure == 'absent' {

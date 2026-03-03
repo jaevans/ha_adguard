@@ -16,7 +16,7 @@ bundle exec rake lint              # Puppet-lint
 ### Quick Single-Node Tests (5-10 minutes each)
 
 ```bash
-bundle exec rake acceptance        # Debian 12 (default, fastest)
+bundle exec rake acceptance        # Debian 13 (default, fastest)
 bundle exec rake acceptance:rocky  # Rocky Linux 9
 ```
 
@@ -55,13 +55,13 @@ bundle exec rake acceptance:all
 
 ```bash
 # Keep containers after test
-BEAKER_destroy=no BEAKER_set=debian12-docker bundle exec rspec spec/acceptance
+BEAKER_destroy=no BEAKER_set=debian13-docker bundle exec rspec spec/acceptance
 
 # Run specific test file
-BEAKER_set=debian12-docker bundle exec rspec spec/acceptance/01_single_node_spec.rb
+BEAKER_set=debian13-docker bundle exec rspec spec/acceptance/01_single_node_spec.rb
 
 # Run specific test context
-BEAKER_set=debian12-docker bundle exec rspec spec/acceptance/01_single_node_spec.rb -e "with default parameters"
+BEAKER_set=debian13-docker bundle exec rspec spec/acceptance/01_single_node_spec.rb -e "with default parameters"
 
 # Enable debug output
 BEAKER_debug=true bundle exec rake acceptance
