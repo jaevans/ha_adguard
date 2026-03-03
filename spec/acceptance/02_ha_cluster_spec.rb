@@ -415,8 +415,8 @@ describe 'ha_adguard HA cluster' do
 
   context 'IPv6 cluster configuration' do
     # Dual-stack IPs for failover testing
-    let(:ipv4_vip) { '192.168.255.101' }
-    let(:ipv6_vip) { 'fd00::101/128' }
+    let(:dual_stack_vip) { '192.168.255.101' }
+    let(:dual_stack_vip_ipv6) { 'fd00::101/128' }
 
     context 'IPv6 primary node configuration' do
       let(:pp) do
@@ -426,8 +426,8 @@ describe 'ha_adguard HA cluster' do
             ha_enabled         => true,
             ha_role            => 'primary',
             keepalived_enabled => true,
-            vip_address        => '#{ipv4_vip}',
-            vip_address_v6     => '#{ipv6_vip}',
+            vip_address        => '#{dual_stack_vip}',
+            vip_address_v6     => '#{dual_stack_vip_ipv6}',
             vrrp_interface     => 'eth0',
             vrrp_priority      => 150,
             vrrp_router_id     => 52,
@@ -463,12 +463,12 @@ describe 'ha_adguard HA cluster' do
         end
 
         it 'has correct IPv4 VIP address' do
-          result = on(primary_host, "grep '#{ipv4_vip}' /etc/keepalived/keepalived.conf")
+          result = on(primary_host, "grep '#{dual_stack_vip}' /etc/keepalived/keepalived.conf")
           expect(result.exit_code).to eq(0)
         end
 
         it 'has correct IPv6 VIP address' do
-          result = on(primary_host, "grep '#{ipv6_vip}' /etc/keepalived/keepalived.conf")
+          result = on(primary_host, "grep '#{dual_stack_vip_ipv6}' /etc/keepalived/keepalived.conf")
           expect(result.exit_code).to eq(0)
         end
 
@@ -502,8 +502,8 @@ describe 'ha_adguard HA cluster' do
             ha_enabled         => true,
             ha_role            => 'replica',
             keepalived_enabled => true,
-            vip_address        => '#{ipv4_vip}',
-            vip_address_v6     => '#{ipv6_vip}',
+            vip_address        => '#{dual_stack_vip}',
+            vip_address_v6     => '#{dual_stack_vip_ipv6}',
             vrrp_interface     => 'eth0',
             vrrp_priority      => 100,
             vrrp_router_id     => 52,
@@ -543,12 +543,12 @@ describe 'ha_adguard HA cluster' do
         end
 
         it 'has correct IPv4 VIP address' do
-          result = on(replica_host, "grep '#{ipv4_vip}' /etc/keepalived/keepalived.conf")
+          result = on(replica_host, "grep '#{dual_stack_vip}' /etc/keepalived/keepalived.conf")
           expect(result.exit_code).to eq(0)
         end
 
         it 'has correct IPv6 VIP address' do
-          result = on(replica_host, "grep '#{ipv6_vip}' /etc/keepalived/keepalived.conf")
+          result = on(replica_host, "grep '#{dual_stack_vip_ipv6}' /etc/keepalived/keepalived.conf")
           expect(result.exit_code).to eq(0)
         end
 
