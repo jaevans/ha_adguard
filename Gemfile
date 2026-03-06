@@ -10,7 +10,7 @@ gem 'rspec-puppet', '~> 5.0'
 gem 'rspec-puppet-facts', '~> 6.0'
 gem 'syslog'
 # gem 'voxpupuli-rubocop', '~> 5.1'
-gem 'voxpupuli-test', '~> 13.2'
+gem 'voxpupuli-test', '~> 14.0'
 
 group :acceptance do
   gem 'beaker', '~> 7.0'
