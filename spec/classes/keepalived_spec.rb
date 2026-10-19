@@ -49,7 +49,7 @@ describe 'ha_adguard::keepalived' do
 
         it do
           is_expected.to contain_class('keepalived').with(
-            service_manage: true
+            service_manage: true,
           )
         end
 
@@ -58,16 +58,16 @@ describe 'ha_adguard::keepalived' do
             ensure: 'file',
             owner: 'root',
             group: 'root',
-            mode: '0755'
+            mode: '0755',
           )
         end
 
         it 'generates valid health check script' do
           content = catalogue.resource('file', '/usr/local/bin/check_adguard.sh')[:content]
-          expect(content).to match(%r{#!/bin/bash})
-          expect(content).to match(%r{AdGuardHome})
-          expect(content).to match(%r{DNS_PORT=53})
-          expect(content).to match(%r{pgrep})
+          expect(content).to include('#!/bin/bash')
+          expect(content).to include('AdGuardHome')
+          expect(content).to include('DNS_PORT=53')
+          expect(content).to include('pgrep')
           expect(content).to match(%r{dig|nslookup})
         end
 
@@ -75,7 +75,7 @@ describe 'ha_adguard::keepalived' do
           is_expected.to contain_keepalived__vrrp__script('check_adguard').with(
             script: '/usr/local/bin/check_adguard.sh',
             interval: 2,
-            weight: -20
+            weight: -20,
           ).that_requires('File[/usr/local/bin/check_adguard.sh]')
         end
 
@@ -88,7 +88,7 @@ describe 'ha_adguard::keepalived' do
             auth_type: 'PASS',
             auth_pass: 'supersecret',
             virtual_ipaddress: ['192.168.1.100'],
-            track_script: ['check_adguard']
+            track_script: ['check_adguard'],
           )
         end
       end
@@ -112,20 +112,20 @@ describe 'ha_adguard::keepalived' do
 
         it 'creates IPv4 VRRP instance with only IPv4 address' do
           is_expected.to contain_keepalived__vrrp__instance('VI_ADGUARD').with(
-            virtual_ipaddress: ['192.168.1.100']
+            virtual_ipaddress: ['192.168.1.100'],
           )
         end
 
         it 'creates IPv6 VRRP instance with native_ipv6 and no auth' do
           is_expected.to contain_keepalived__vrrp__instance('VI_ADGUARD6').with(
             native_ipv6:       true,
-            virtual_ipaddress: ['fd00:1234:5678:1::10/64']
+            virtual_ipaddress: ['fd00:1234:5678:1::10/64'],
           )
         end
 
         it 'creates a sync group for both instances' do
           is_expected.to contain_keepalived__vrrp__sync_group('VG_ADGUARD').with(
-            group: %w[VI_ADGUARD VI_ADGUARD6]
+            group: %w[VI_ADGUARD VI_ADGUARD6],
           )
         end
       end
@@ -143,7 +143,7 @@ describe 'ha_adguard::keepalived' do
 
         it do
           is_expected.to contain_keepalived__vrrp__script('check_adguard').with(
-            interval: 5
+            interval: 5,
           )
         end
       end
@@ -161,7 +161,7 @@ describe 'ha_adguard::keepalived' do
 
         it 'uses custom DNS port in health check script' do
           content = catalogue.resource('file', '/usr/local/bin/check_adguard.sh')[:content]
-          expect(content).to match(%r{DNS_PORT=5353})
+          expect(content).to include('DNS_PORT=5353')
         end
       end
 
@@ -186,7 +186,7 @@ describe 'ha_adguard::keepalived' do
 
         it do
           is_expected.to contain_file('/usr/local/bin/check_adguard.sh').with(
-            ensure: 'absent'
+            ensure: 'absent',
           )
         end
       end
@@ -206,7 +206,7 @@ describe 'ha_adguard::keepalived' do
         it do
           is_expected.to contain_keepalived__vrrp__instance('VI_ADGUARD').with(
             priority: 100,
-            state: 'BACKUP'
+            state: 'BACKUP',
           )
         end
       end
@@ -227,7 +227,7 @@ describe 'ha_adguard::keepalived' do
         it do
           is_expected.to contain_keepalived__vrrp__instance('VI_ADGUARD').with(
             priority: 150,
-            state: 'MASTER'
+            state: 'MASTER',
           )
         end
       end
@@ -246,7 +246,7 @@ describe 'ha_adguard::keepalived' do
 
         it do
           is_expected.to contain_keepalived__vrrp__instance('VI_ADGUARD').with(
-            state: 'BACKUP'
+            state: 'BACKUP',
           )
         end
       end

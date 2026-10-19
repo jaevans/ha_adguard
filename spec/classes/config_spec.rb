@@ -31,7 +31,7 @@ describe 'ha_adguard::config' do
             ensure: 'directory',
             owner: 'adguard',
             group: 'adguard',
-            mode: '0750'
+            mode: '0750',
           )
         end
 
@@ -40,7 +40,7 @@ describe 'ha_adguard::config' do
             ensure: 'file',
             owner: 'adguard',
             group: 'adguard',
-            mode: '0600'
+            mode: '0600',
           ).that_requires('File[/etc/adguardhome]')
         end
 
@@ -128,7 +128,7 @@ describe 'ha_adguard::config' do
           is_expected.to contain_file('/etc/adguardhome').with(
             ensure: 'absent',
             force: true,
-            recurse: true
+            recurse: true,
           )
         end
       end
@@ -144,13 +144,13 @@ describe 'ha_adguard::config' do
 
         it do
           is_expected.to contain_file('/custom/config').with(
-            ensure: 'directory'
+            ensure: 'directory',
           )
         end
 
         it do
           is_expected.to contain_file('/custom/config/AdGuardHome.yaml').with(
-            ensure: 'file'
+            ensure: 'file',
           )
         end
       end
