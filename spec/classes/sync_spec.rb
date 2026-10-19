@@ -64,7 +64,7 @@ describe 'ha_adguard::sync' do
             ensure: 'directory',
             owner: 'root',
             group: 'root',
-            mode: '0750'
+            mode: '0750',
           )
         end
 
@@ -73,7 +73,7 @@ describe 'ha_adguard::sync' do
             ensure: 'file',
             owner: 'root',
             group: 'root',
-            mode: '0600'
+            mode: '0600',
           ).that_requires('File[/etc/adguardhome-sync]')
         end
 
@@ -98,23 +98,23 @@ describe 'ha_adguard::sync' do
         it do
           is_expected.to contain_systemd__unit_file('adguardhome-sync.service').with(
             enable: true,
-            active: true
+            active: true,
           )
         end
 
         it 'generates valid systemd unit' do
           content = catalogue.resource('systemd::unit_file', 'adguardhome-sync.service')[:content]
-          expect(content).to match(%r{Description=AdGuard Home Sync Service})
+          expect(content).to include('Description=AdGuard Home Sync Service')
           expect(content).to match(%r{After=.*adguardhome.service})
           expect(content).to match(%r{Requires=adguardhome.service})
-          expect(content).to match(%r{ExecStart=/usr/local/bin/adguardhome-sync run})
+          expect(content).to include('ExecStart=/usr/local/bin/adguardhome-sync run')
           expect(content).to match(%r{--config /etc/adguardhome-sync/config.yaml})
         end
 
         it do
           is_expected.to contain_service('adguardhome-sync').with(
             ensure: 'running',
-            enable: true
+            enable: true,
           ).that_requires([
                             'Systemd::Unit_file[adguardhome-sync.service]',
                             'Service[adguardhome]',
@@ -123,7 +123,7 @@ describe 'ha_adguard::sync' do
 
         it 'service subscribes to config changes' do
           is_expected.to contain_service('adguardhome-sync').that_subscribes_to(
-            'File[/etc/adguardhome-sync/config.yaml]'
+            'File[/etc/adguardhome-sync/config.yaml]',
           )
         end
       end
@@ -197,13 +197,13 @@ describe 'ha_adguard::sync' do
         it do
           is_expected.to contain_service('adguardhome-sync').with(
             ensure: 'stopped',
-            enable: false
+            enable: false,
           ).that_comes_before('Systemd::Unit_file[adguardhome-sync.service]')
         end
 
         it do
           is_expected.to contain_systemd__unit_file('adguardhome-sync.service').with(
-            ensure: 'absent'
+            ensure: 'absent',
           )
         end
 
@@ -211,7 +211,7 @@ describe 'ha_adguard::sync' do
           is_expected.to contain_file('/etc/adguardhome-sync').with(
             ensure: 'absent',
             force: true,
-            recurse: true
+            recurse: true,
           )
         end
       end

@@ -507,4 +507,3 @@ Data type: `Boolean`
 Enable service at boot
 
 Default value: `true`
-

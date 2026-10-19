@@ -2,5 +2,13 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended"
+  ],
+  "packageRules": [
+    {
+      "description": "json 3 removed JSON.create_id=, which jgrep (via facterdb) still calls",
+      "matchManagers": ["bundler"],
+      "matchPackageNames": ["json"],
+      "allowedVersions": "< 3"
+    }
   ]
 }

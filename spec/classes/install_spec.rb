@@ -34,7 +34,7 @@ describe 'ha_adguard::install' do
             creates: '/opt/AdGuardHome/AdGuardHome',
             cleanup: true,
             user: 'root',
-            group: 'root'
+            group: 'root',
           )
         end
 
@@ -44,21 +44,21 @@ describe 'ha_adguard::install' do
             owner: 'adguard',
             group: 'adguard',
             mode: '0755',
-            recurse: true
+            recurse: true,
           ).that_requires(['Archive[/tmp/AdGuardHome.tar.gz]', 'User[adguard]'])
         end
 
         it do
           is_expected.to contain_exec('set_adguardhome_capabilities').with(
             command: "setcap 'CAP_NET_BIND_SERVICE=+eip CAP_NET_RAW=+eip' /opt/AdGuardHome/AdGuardHome",
-            path: ['/usr/bin', '/usr/sbin', '/bin', '/sbin']
+            path: ['/usr/bin', '/usr/sbin', '/bin', '/sbin'],
           ).that_requires('File[/opt/AdGuardHome]')
         end
 
         it do
           is_expected.to contain_file('/usr/local/bin/adguardhome').with(
             ensure: 'link',
-            target: '/opt/AdGuardHome/AdGuardHome'
+            target: '/opt/AdGuardHome/AdGuardHome',
           ).that_requires('File[/opt/AdGuardHome]')
         end
       end
@@ -79,7 +79,7 @@ describe 'ha_adguard::install' do
           is_expected.to contain_archive('/tmp/adguardhome-sync.tar.gz').with(
             ensure: 'present',
             creates: '/tmp/adguardhome-sync',
-            cleanup: true
+            cleanup: true,
           )
         end
 
@@ -88,7 +88,7 @@ describe 'ha_adguard::install' do
             ensure: 'file',
             owner: 'root',
             group: 'root',
-            mode: '0755'
+            mode: '0755',
           ).that_requires('Archive[/tmp/adguardhome-sync.tar.gz]')
         end
       end
@@ -110,7 +110,7 @@ describe 'ha_adguard::install' do
           is_expected.to contain_archive('/tmp/adguardhome-sync.tar.gz').with(
             ensure: 'present',
             creates: '/tmp/adguardhome-sync',
-            cleanup: true
+            cleanup: true,
           )
         end
 
@@ -119,7 +119,7 @@ describe 'ha_adguard::install' do
             ensure: 'file',
             owner: 'root',
             group: 'root',
-            mode: '0755'
+            mode: '0755',
           ).that_requires('Archive[/tmp/adguardhome-sync.tar.gz]')
         end
       end
@@ -131,13 +131,13 @@ describe 'ha_adguard::install' do
 
         it do
           is_expected.to contain_file('/usr/local/bin/adguardhome').with(
-            ensure: 'absent'
+            ensure: 'absent',
           )
         end
 
         it do
           is_expected.to contain_file('/usr/local/bin/adguardhome-sync').with(
-            ensure: 'absent'
+            ensure: 'absent',
           )
         end
 
@@ -145,7 +145,7 @@ describe 'ha_adguard::install' do
           is_expected.to contain_file('/opt/AdGuardHome').with(
             ensure: 'absent',
             force: true,
-            recurse: true
+            recurse: true,
           )
         end
       end
@@ -161,13 +161,13 @@ describe 'ha_adguard::install' do
 
         it do
           is_expected.to contain_file('/custom/adguard').with(
-            ensure: 'directory'
+            ensure: 'directory',
           )
         end
 
         it do
           is_expected.to contain_exec('set_adguardhome_capabilities').with(
-            command: "setcap 'CAP_NET_BIND_SERVICE=+eip CAP_NET_RAW=+eip' /custom/adguard/AdGuardHome"
+            command: "setcap 'CAP_NET_BIND_SERVICE=+eip CAP_NET_RAW=+eip' /custom/adguard/AdGuardHome",
           )
         end
       end

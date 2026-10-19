@@ -11,8 +11,8 @@ HOSTS:
     docker_cmd: '["/usr/sbin/init"]'
     docker_image_commands:
       - 'dnf install -y systemd wget which procps iproute bind-utils iputils net-tools'
-      - 'wget https://yum.voxpupuli.org/openvox8-release-el-9.noarch.rpm'
-      - 'rpm -ivh openvox8-release-el-9.noarch.rpm'
+      - 'wget https://yum.voxpupuli.org/<%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'openvox8') %>-release-el-9.noarch.rpm'
+      - 'rpm -ivh <%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'openvox8') %>-release-el-9.noarch.rpm'
       - 'dnf install -y openvox-agent'
       - 'ln -sf /opt/puppetlabs/bin/puppet /usr/bin/puppet'
     roles:
