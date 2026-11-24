@@ -287,8 +287,8 @@ describe 'ha_adguard HA cluster' do
         primary_priority = on(primary_host, "grep 'priority' /etc/keepalived/keepalived.conf | head -1").stdout.strip
         replica_priority = on(replica_host, "grep 'priority' /etc/keepalived/keepalived.conf | head -1").stdout.strip
 
-        expect(primary_priority).to match(%r{150})
-        expect(replica_priority).to match(%r{100})
+        expect(primary_priority).to include('150')
+        expect(replica_priority).to include('100')
       end
     end
 
@@ -408,7 +408,7 @@ describe 'ha_adguard HA cluster' do
 
         # Verify it's not on replica anymore
         result_replica = on(replica_host, "ip addr show | grep '#{vip}' || echo 'VIP not found'")
-        expect(result_replica.stdout).to match(%r{VIP not found})
+        expect(result_replica.stdout).to include('VIP not found')
       end
     end
   end

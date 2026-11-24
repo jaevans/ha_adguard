@@ -47,7 +47,7 @@ describe 'ha_adguard single node installation' do
 
       it 'adguard user has correct home directory' do
         result = on(default, 'getent passwd adguard')
-        expect(result.stdout).to match(%r{/var/lib/adguardhome})
+        expect(result.stdout).to include('/var/lib/adguardhome')
       end
 
       it 'has adguard group' do
@@ -183,12 +183,12 @@ describe 'ha_adguard single node installation' do
     describe 'capabilities' do
       it 'AdGuard Home binary has CAP_NET_BIND_SERVICE' do
         result = on(default, 'getcap /opt/AdGuardHome/AdGuardHome')
-        expect(result.stdout).to match(%r{cap_net_bind_service})
+        expect(result.stdout).to include('cap_net_bind_service')
       end
 
       it 'AdGuard Home binary has CAP_NET_RAW' do
         result = on(default, 'getcap /opt/AdGuardHome/AdGuardHome')
-        expect(result.stdout).to match(%r{cap_net_raw})
+        expect(result.stdout).to include('cap_net_raw')
       end
     end
   end
@@ -346,12 +346,12 @@ describe 'ha_adguard single node installation' do
     describe 'capabilities' do
       it 'AdGuard Home binary has CAP_NET_BIND_SERVICE' do
         result = on(default, 'getcap /opt/AdGuardHome/AdGuardHome')
-        expect(result.stdout).to match(%r{cap_net_bind_service})
+        expect(result.stdout).to include('cap_net_bind_service')
       end
 
       it 'AdGuard Home binary has CAP_NET_RAW' do
         result = on(default, 'getcap /opt/AdGuardHome/AdGuardHome')
-        expect(result.stdout).to match(%r{cap_net_raw})
+        expect(result.stdout).to include('cap_net_raw')
       end
     end
   end

@@ -46,7 +46,7 @@ describe 'ha_adguard::firewall' do
           is_expected.to contain_firewall('100 allow DNS tcp').with(
             dport: 53,
             proto: 'tcp',
-            jump: 'accept'
+            jump: 'accept',
           )
         end
 
@@ -54,7 +54,7 @@ describe 'ha_adguard::firewall' do
           is_expected.to contain_firewall('100 allow DNS udp').with(
             dport: 53,
             proto: 'udp',
-            jump: 'accept'
+            jump: 'accept',
           )
         end
 
@@ -62,7 +62,7 @@ describe 'ha_adguard::firewall' do
           is_expected.to contain_firewall('100 allow AdGuard web UI').with(
             dport: 3000,
             proto: 'tcp',
-            jump: 'accept'
+            jump: 'accept',
           )
         end
 
@@ -86,7 +86,7 @@ describe 'ha_adguard::firewall' do
         it do
           is_expected.to contain_firewall('100 allow VRRP').with(
             proto: 'vrrp',
-            jump: 'accept'
+            jump: 'accept',
           )
         end
       end
@@ -110,7 +110,7 @@ describe 'ha_adguard::firewall' do
           is_expected.to contain_firewall('100 allow adguardhome-sync API').with(
             dport: 8080,
             proto: 'tcp',
-            jump: 'accept'
+            jump: 'accept',
           )
         end
       end
@@ -149,25 +149,25 @@ describe 'ha_adguard::firewall' do
 
         it do
           is_expected.to contain_firewall('100 allow DNS tcp').with(
-            dport: 5353
+            dport: 5353,
           )
         end
 
         it do
           is_expected.to contain_firewall('100 allow DNS udp').with(
-            dport: 5353
+            dport: 5353,
           )
         end
 
         it do
           is_expected.to contain_firewall('100 allow AdGuard web UI').with(
-            dport: 8080
+            dport: 8080,
           )
         end
 
         it do
           is_expected.to contain_firewall('100 allow adguardhome-sync API').with(
-            dport: 9090
+            dport: 9090,
           )
         end
       end
@@ -191,31 +191,31 @@ describe 'ha_adguard::firewall' do
 
         it do
           is_expected.to contain_firewall('100 allow DNS tcp').with(
-            ensure: 'absent'
+            ensure: 'absent',
           )
         end
 
         it do
           is_expected.to contain_firewall('100 allow DNS udp').with(
-            ensure: 'absent'
+            ensure: 'absent',
           )
         end
 
         it do
           is_expected.to contain_firewall('100 allow AdGuard web UI').with(
-            ensure: 'absent'
+            ensure: 'absent',
           )
         end
 
         it do
           is_expected.to contain_firewall('100 allow VRRP').with(
-            ensure: 'absent'
+            ensure: 'absent',
           )
         end
 
         it do
           is_expected.to contain_firewall('100 allow adguardhome-sync API').with(
-            ensure: 'absent'
+            ensure: 'absent',
           )
         end
       end

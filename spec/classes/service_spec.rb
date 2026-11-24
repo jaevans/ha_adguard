@@ -29,34 +29,34 @@ describe 'ha_adguard::service' do
         it do
           is_expected.to contain_systemd__unit_file('adguardhome.service').with(
             enable: true,
-            active: true
+            active: true,
           )
         end
 
         it 'generates valid systemd unit content' do
           content = catalogue.resource('systemd::unit_file', 'adguardhome.service')[:content]
-          expect(content).to match(%r{\[Unit\]})
-          expect(content).to match(%r{Description=AdGuard Home DNS server})
+          expect(content).to include('[Unit]')
+          expect(content).to include('Description=AdGuard Home DNS server')
           expect(content).to match(%r{After=network-online.target})
-          expect(content).to match(%r{\[Service\]})
-          expect(content).to match(%r{User=adguard})
-          expect(content).to match(%r{ExecStart=/opt/AdGuardHome/AdGuardHome})
+          expect(content).to include('[Service]')
+          expect(content).to include('User=adguard')
+          expect(content).to include('ExecStart=/opt/AdGuardHome/AdGuardHome')
           expect(content).to match(%r{--config /etc/adguardhome/AdGuardHome.yaml})
-          expect(content).to match(%r{--work-dir /var/lib/adguardhome})
-          expect(content).to match(%r{CAP_NET_BIND_SERVICE})
-          expect(content).to match(%r{CAP_NET_RAW})
+          expect(content).to include('--work-dir /var/lib/adguardhome')
+          expect(content).to include('CAP_NET_BIND_SERVICE')
+          expect(content).to include('CAP_NET_RAW')
         end
 
         it do
           is_expected.to contain_service('adguardhome').with(
             ensure: 'running',
-            enable: true
+            enable: true,
           ).that_requires('Systemd::Unit_file[adguardhome.service]')
         end
 
         it 'service subscribes to config changes' do
           is_expected.to contain_service('adguardhome').that_subscribes_to(
-            'File[/etc/adguardhome/AdGuardHome.yaml]'
+            'File[/etc/adguardhome/AdGuardHome.yaml]',
           )
         end
       end
@@ -72,7 +72,7 @@ describe 'ha_adguard::service' do
 
         it do
           is_expected.to contain_service('adguardhome').with(
-            ensure: 'stopped'
+            ensure: 'stopped',
           )
         end
       end
@@ -88,13 +88,13 @@ describe 'ha_adguard::service' do
 
         it do
           is_expected.to contain_service('adguardhome').with(
-            enable: false
+            enable: false,
           )
         end
 
         it do
           is_expected.to contain_systemd__unit_file('adguardhome.service').with(
-            enable: false
+            enable: false,
           )
         end
       end
@@ -121,13 +121,13 @@ describe 'ha_adguard::service' do
         it do
           is_expected.to contain_service('adguardhome').with(
             ensure: 'stopped',
-            enable: false
+            enable: false,
           ).that_comes_before('Systemd::Unit_file[adguardhome.service]')
         end
 
         it do
           is_expected.to contain_systemd__unit_file('adguardhome.service').with(
-            ensure: 'absent'
+            ensure: 'absent',
           )
         end
       end
@@ -145,9 +145,9 @@ describe 'ha_adguard::service' do
 
         it 'uses custom paths in systemd unit' do
           content = catalogue.resource('systemd::unit_file', 'adguardhome.service')[:content]
-          expect(content).to match(%r{ExecStart=/custom/adguard/AdGuardHome})
+          expect(content).to include('ExecStart=/custom/adguard/AdGuardHome')
           expect(content).to match(%r{--config /custom/config/AdGuardHome.yaml})
-          expect(content).to match(%r{--work-dir /custom/work})
+          expect(content).to include('--work-dir /custom/work')
         end
       end
 
@@ -163,8 +163,8 @@ describe 'ha_adguard::service' do
 
         it 'uses custom user and group in systemd unit' do
           content = catalogue.resource('systemd::unit_file', 'adguardhome.service')[:content]
-          expect(content).to match(%r{User=customuser})
-          expect(content).to match(%r{Group=customgroup})
+          expect(content).to include('User=customuser')
+          expect(content).to include('Group=customgroup')
         end
       end
     end

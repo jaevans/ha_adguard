@@ -29,7 +29,7 @@ describe 'ha_adguard::user' do
         it do
           is_expected.to contain_group('adguard').with(
             ensure: 'present',
-            system: true
+            system: true,
           )
         end
 
@@ -40,7 +40,7 @@ describe 'ha_adguard::user' do
             shell: '/usr/sbin/nologin',
             home: '/var/lib/adguardhome',
             comment: 'AdGuard Home service user',
-            managehome: false
+            managehome: false,
           ).that_requires('Group[adguard]')
         end
 
@@ -49,7 +49,7 @@ describe 'ha_adguard::user' do
             ensure: 'directory',
             owner: 'adguard',
             group: 'adguard',
-            mode: '0750'
+            mode: '0750',
           ).that_requires('User[adguard]')
         end
       end
@@ -70,7 +70,7 @@ describe 'ha_adguard::user' do
           is_expected.to contain_group('customgroup').with(
             ensure: 'present',
             gid: 5000,
-            system: true
+            system: true,
           )
         end
 
@@ -79,7 +79,7 @@ describe 'ha_adguard::user' do
             ensure: 'present',
             uid: 5000,
             gid: 'customgroup',
-            system: true
+            system: true,
           )
         end
       end
@@ -93,19 +93,19 @@ describe 'ha_adguard::user' do
           is_expected.to contain_file('/var/lib/adguardhome').with(
             ensure: 'absent',
             force: true,
-            recurse: true
+            recurse: true,
           )
         end
 
         it do
           is_expected.to contain_user('adguard').with(
-            ensure: 'absent'
+            ensure: 'absent',
           ).that_requires('File[/var/lib/adguardhome]')
         end
 
         it do
           is_expected.to contain_group('adguard').with(
-            ensure: 'absent'
+            ensure: 'absent',
           ).that_requires('User[adguard]')
         end
       end
