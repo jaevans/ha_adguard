@@ -7,11 +7,11 @@ describe 'ha_adguard' do
     context "on #{os}" do
       let(:facts) { os_facts }
 
-      # spec/hiera supplies sync_password as a plain string. The parameter is
+      # spec/fixtures/hiera supplies sync_password as a plain string. The parameter is
       # Sensitive[String[1]], so this only compiles if the module's own
       # lookup_options (data/common.yaml) convert it.
       context 'with sync_password from Hiera as a plain string' do
-        let(:hiera_config) { File.expand_path('../hiera/hiera.yaml', __dir__) }
+        let(:hiera_config) { File.expand_path('../fixtures/hiera/hiera.yaml', __dir__) }
         let(:params) do
           {
             ha_role: 'replica',
