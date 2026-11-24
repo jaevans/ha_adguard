@@ -1,0 +1,2 @@
+---
+ha_adguard::sync_password: 'plain-from-hiera'

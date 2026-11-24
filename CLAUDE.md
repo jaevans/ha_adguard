@@ -221,12 +221,13 @@ Originally planned 6 templates; reduced to 4 by using puppet/keepalived module:
 - ❌ keepalived.conf.epp (NOT needed - puppet/keepalived handles it)
 
 ### Hiera Data Layer
-Module uses Hiera 5 with hierarchy:
-1. Per-node data: `data/nodes/%{trusted.certname}.yaml`
-2. Per-OS family: `data/os/%{facts.os.family}.yaml`
-3. Common defaults: `data/common.yaml`
+`hiera.yaml` at the module root (Hiera 5) has a single level, `data/common.yaml`.
+That file holds only `lookup_options` converting `ha_adguard::sync_password` to
+`Sensitive`, so environment Hiera can supply it as a plain or eyaml string.
 
-OS-specific differences (e.g., network interface names: `ens3` for Debian, `ens192` for RedHat).
+Parameter defaults live only in `manifests/init.pp`; do not duplicate them in
+`data/`, because module data silently overrides code defaults. There are no
+per-OS defaults: `vrrp_interface` is `eth0` everywhere unless the caller sets it.
 
 ## Known Limitations
 
