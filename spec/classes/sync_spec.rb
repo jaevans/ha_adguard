@@ -180,6 +180,73 @@ describe 'ha_adguard::sync' do
         end
       end
 
+      # adguardhome-sync enables every feature by default, reads only its own
+      # camelCase/nested keys and ignores unknown ones, so a feature is only
+      # turned off by writing false under the key it reads.
+      context 'with sync features restricted to general settings and filters' do
+        let(:pre_condition) do
+          <<-PUPPET
+          class { 'ha_adguard':
+            ha_role         => 'replica',
+            sync_enabled    => true,
+            sync_origin_url => 'http://primary.example.com:3000',
+            sync_features   => ['general_settings', 'filters'],
+          }
+          PUPPET
+        end
+
+        it 'disables the unlisted features under the keys adguardhome-sync reads' do
+          features = YAML.safe_load(catalogue.resource('file', '/etc/adguardhome-sync/config.yaml')[:content])['features']
+          expect(features['generalSettings']).to be(true)
+          expect(features['queryLogConfig']).to be(false)
+          expect(features['statsConfig']).to be(false)
+          expect(features['clientSettings']).to be(false)
+          expect(features['services']).to be(false)
+          expect(features.dig('dns', 'serverConfig')).to be(false)
+          expect(features.dig('dhcp', 'serverConfig')).to be(false)
+        end
+      end
+
+      # adguardhome-sync has no api.enabled key; the API is off only when api.port is 0.
+      context 'with the sync API disabled' do
+        let(:pre_condition) do
+          <<-PUPPET
+          class { 'ha_adguard':
+            ha_role          => 'replica',
+            sync_enabled     => true,
+            sync_origin_url  => 'http://primary.example.com:3000',
+            sync_api_enabled => false,
+          }
+          PUPPET
+        end
+
+        it 'turns the API off the way adguardhome-sync reads it' do
+          config = YAML.safe_load(catalogue.resource('file', '/etc/adguardhome-sync/config.yaml')[:content])
+          expect(config.dig('api', 'port')).to eq(0)
+        end
+      end
+
+      [30, 3600].each do |interval|
+        context "with sync_interval => #{interval}" do
+          let(:pre_condition) do
+            <<-PUPPET
+            class { 'ha_adguard':
+              ha_role         => 'replica',
+              sync_enabled    => true,
+              sync_origin_url => 'http://primary.example.com:3000',
+              sync_interval   => #{interval},
+            }
+            PUPPET
+          end
+
+          it 'writes a cron minute step between 1 and 59' do
+            cron = YAML.safe_load(catalogue.resource('file', '/etc/adguardhome-sync/config.yaml')[:content])['cron']
+            step = cron.split.first[%r{\A\*/(\d+)\z}, 1]
+            expect(step.nil? || (1..59).cover?(step.to_i)).to be(true), "cron #{cron.inspect} has an invalid minute step"
+          end
+        end
+      end
+
       context 'with ensure => absent and sync enabled' do
         let(:pre_condition) do
           <<-PUPPET
