@@ -63,6 +63,51 @@ describe 'ha_adguard::install' do
         end
       end
 
+      # Both archives are guarded by version-independent paths, so once a
+      # binary exists Puppet never fetches a different version, and nothing
+      # restarts the running service after a binary changes.
+      context 'with non-default versions' do
+        let(:pre_condition) do
+          <<-PUPPET
+          class { 'ha_adguard':
+            adguard_version => '0.107.99',
+            sync_version    => '9.9.9',
+            ha_role         => 'replica',
+            sync_enabled    => true,
+            sync_origin_url => 'http://primary.example.com:3000',
+          }
+          PUPPET
+        end
+
+        def archive_for(version)
+          catalogue.resources.find { |r| r.type == 'Archive' && r[:source].to_s.include?("v#{version}/") }
+        end
+
+        it 'ties the AdGuard Home download guard to the version' do
+          archive = archive_for('0.107.99')
+          expect("#{archive.title} #{archive[:creates]}").to include('0.107.99')
+        end
+
+        it 'ties the adguardhome-sync download guard to the version' do
+          archive = archive_for('9.9.9')
+          expect("#{archive.title} #{archive[:creates]}").to include('9.9.9')
+        end
+
+        it 'verifies both downloads against a checksum' do
+          [archive_for('0.107.99'), archive_for('9.9.9')].each do |archive|
+            expect(archive[:checksum] || archive[:checksum_url]).not_to be_nil, "#{archive.title} has no checksum"
+          end
+        end
+
+        it 'restarts AdGuard Home when its archive changes' do
+          is_expected.to contain_archive(archive_for('0.107.99').title).that_notifies('Service[adguardhome]')
+        end
+
+        it 'restarts adguardhome-sync when its archive changes' do
+          is_expected.to contain_archive(archive_for('9.9.9').title).that_notifies('Service[adguardhome-sync]')
+        end
+      end
+
       context 'with sync enabled on primary' do
         let(:pre_condition) do
           <<-PUPPET
