@@ -91,6 +91,45 @@ describe 'ha_adguard::config' do
         end
       end
 
+      # AdGuard Home's schema-23 migration moved bind_host/bind_port under
+      # http.address. At schema_version 28 that migration never runs, so
+      # top-level bind_host/bind_port are silently ignored and the web UI
+      # falls back to its default address.
+      context 'with a custom web address at the declared schema version' do
+        let(:pre_condition) do
+          <<-PUPPET
+          class { 'ha_adguard':
+            bind_host => '127.0.0.1',
+            bind_port => 8080,
+          }
+          PUPPET
+        end
+
+        it 'writes the address where AdGuard Home reads it' do
+          config = YAML.safe_load(catalogue.resource('file', '/etc/adguardhome/AdGuardHome.yaml')[:content])
+          expect(config['schema_version']).to be >= 23
+          expect(config.dig('http', 'address')).to eq('127.0.0.1:8080')
+          expect(config).not_to include('bind_host', 'bind_port')
+        end
+      end
+
+      context 'with an IPv6 VIP' do
+        let(:pre_condition) do
+          <<-PUPPET
+          class { 'ha_adguard':
+            keepalived_enabled => true,
+            vip_address        => '192.168.255.10',
+            vip_address_v6     => 'fd00::53/64',
+          }
+          PUPPET
+        end
+
+        it 'binds DNS on an IPv6 address' do
+          config = YAML.safe_load(catalogue.resource('file', '/etc/adguardhome/AdGuardHome.yaml')[:content])
+          expect(config['dns']['bind_hosts']).to include(a_string_including(':'))
+        end
+      end
+
       context 'with custom config hash' do
         let(:pre_condition) do
           <<-PUPPET
