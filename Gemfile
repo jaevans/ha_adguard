@@ -19,5 +19,5 @@ group :acceptance do
   gem 'beaker-rspec', '9.1.0'
   gem 'serverspec', '2.43.0'
   gem 'voxpupuli-acceptance', '4.4.0'
-  gem 'beaker_puppet_helpers', '3.3.1', require: false
+  gem 'beaker_puppet_helpers', '3.4.0', require: false
 end
