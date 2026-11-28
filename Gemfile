@@ -6,7 +6,7 @@ gem 'json', '2.21.2'
 gem 'metadata-json-lint', '5.1.0'
 gem 'openfact', '6.2.1'
 gem 'openvox', ENV.fetch('PUPPET_GEM_VERSION', '8.31.0')
-gem 'parallel_tests', '5.8.0'
+gem 'parallel_tests', '5.9.0'
 gem 'rake', '13.4.2'
 gem 'rspec-puppet', '6.0.0'
 gem 'rspec-puppet-facts', '6.3.1'
