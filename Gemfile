@@ -14,7 +14,7 @@ gem 'syslog', '0.4.0'
 gem 'voxpupuli-test', '15.0.0'
 
 group :acceptance do
-  gem 'beaker', '7.8.3'
+  gem 'beaker', '7.9.0'
   gem 'beaker-docker', '3.1.3'
   gem 'beaker-rspec', '9.1.0'
   gem 'serverspec', '2.43.0'
