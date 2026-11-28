@@ -32,7 +32,7 @@ jobs:
         uses: actions/checkout@v7.0.1
 
       - name: Set up Ruby
-        uses: ruby/setup-ruby@v1.329.0
+        uses: ruby/setup-ruby@v1.345.0
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
@@ -68,7 +68,7 @@ jobs:
         uses: actions/checkout@v7.0.1
 
       - name: Set up Ruby
-        uses: ruby/setup-ruby@v1.329.0
+        uses: ruby/setup-ruby@v1.345.0
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
