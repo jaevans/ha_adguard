@@ -8,7 +8,7 @@ gem 'openfact', '6.2.3'
 gem 'openvox', ENV.fetch('PUPPET_GEM_VERSION', '8.31.0')
 gem 'parallel_tests', '5.8.0'
 gem 'rake', '13.4.2'
-gem 'rspec-puppet', '6.0.0'
+gem 'rspec-puppet', '6.0.1'
 gem 'rspec-puppet-facts', '6.3.1'
 gem 'syslog', '0.4.0'
 gem 'voxpupuli-test', '15.0.0'
