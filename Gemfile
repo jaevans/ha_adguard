@@ -18,6 +18,6 @@ group :acceptance do
   gem 'beaker-docker', '3.2.0'
   gem 'beaker-rspec', '9.1.0'
   gem 'serverspec', '2.43.0'
-  gem 'voxpupuli-acceptance', '4.4.0'
+  gem 'voxpupuli-acceptance', '4.4.1'
   gem 'beaker_puppet_helpers', '3.4.0', require: false
 end
