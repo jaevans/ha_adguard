@@ -4,7 +4,7 @@ gem 'bigdecimal', '4.1.3'
 # jgrep (via facterdb) calls JSON.create_id=, which json 3 removed.
 gem 'json', '2.21.2'
 gem 'metadata-json-lint', '5.1.0'
-gem 'openfact', '6.2.1'
+gem 'openfact', '6.2.3'
 gem 'openvox', ENV.fetch('PUPPET_GEM_VERSION', '8.31.0')
 gem 'parallel_tests', '5.8.0'
 gem 'rake', '13.4.2'
